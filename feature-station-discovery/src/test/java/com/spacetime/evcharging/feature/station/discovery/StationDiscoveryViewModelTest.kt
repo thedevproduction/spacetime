@@ -81,4 +81,25 @@ class StationDiscoveryViewModelTest {
         viewModel.toggleViewMode()
         assertFalse(viewModel.uiState.value.isMapMode)
     }
+
+    @Test
+    fun `quick filter AVAILABLE_NOW filters out stations with zero available connectors`() = runTest(testDispatcher) {
+        testScheduler.advanceUntilIdle()
+
+        viewModel.setQuickFilter("AVAILABLE_NOW")
+        val state = viewModel.uiState.value
+
+        assertEquals(1, state.filteredStations.size)
+        assertEquals("st_01", state.filteredStations.first().id)
+    }
+
+    @Test
+    fun `updateUserLocation loads stations with new coordinates`() = runTest(testDispatcher) {
+        testScheduler.advanceUntilIdle()
+
+        viewModel.updateUserLocation(23.25, 77.41)
+        testScheduler.advanceUntilIdle()
+
+        coVerify { stationRepository.getNearbyStations(23.25, 77.41, any()) }
+    }
 }

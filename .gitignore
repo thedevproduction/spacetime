@@ -1,17 +1,26 @@
-*.iml
-.gradle
+# Gradle
+.gradle/
+**/build/
+build/
+/build
+
+# Local configuration
+local.properties
 /local.properties
+
+# IDE
+*.iml
+.idea/
 /.idea
 .DS_Store
-/build
+
+# Android Studio / Android
 /captures
 .externalNativeBuild
 .cxx
-local.properties
 /app/release/
 *.apk
 *.aab
 *.jks
 *.keystore
 google-services.json
-

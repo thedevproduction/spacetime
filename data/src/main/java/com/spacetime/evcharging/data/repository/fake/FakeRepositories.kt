@@ -128,12 +128,72 @@ class FakeStationRepository @Inject constructor() : StationRepository {
             minimumTariff = Money(1350),
             rating = 4.7f,
             amenities = listOf("Restroom", "Waiting Lounge", "EV Spares")
+        ),
+        Station(
+            id = "st_004",
+            name = "Bhedaghat Marble Rocks EV Hub",
+            address = "Near Dhuandhar Falls, Bhedaghat, Jabalpur",
+            latitude = 23.1310,
+            longitude = 79.8005,
+            distanceKm = 8.5,
+            isOpen = true,
+            availability = ChargerStatus.AVAILABLE,
+            availableConnectors = 3,
+            totalConnectors = 4,
+            minimumTariff = Money(1400),
+            rating = 4.9f,
+            amenities = listOf("Scenic View", "Cafe", "Restroom")
+        ),
+        Station(
+            id = "st_005",
+            name = "DB City Mall EV Station Bhopal",
+            address = "Arera Hills, MP Nagar Zone-1, Bhopal",
+            latitude = 23.2330,
+            longitude = 77.4300,
+            distanceKm = 1.8,
+            isOpen = true,
+            availability = ChargerStatus.AVAILABLE,
+            availableConnectors = 6,
+            totalConnectors = 8,
+            minimumTariff = Money(1600),
+            rating = 4.6f,
+            amenities = listOf("Multiplex", "Food Court", "Covered Parking", "Valet")
+        ),
+        Station(
+            id = "st_006",
+            name = "Raja Bhoj Airport EV Terminal",
+            address = "Airport Road, Gandhi Nagar, Bhopal",
+            latitude = 23.2875,
+            longitude = 77.3378,
+            distanceKm = 14.2,
+            isOpen = true,
+            availability = ChargerStatus.AVAILABLE,
+            availableConnectors = 2,
+            totalConnectors = 2,
+            minimumTariff = Money(1500),
+            rating = 4.4f,
+            amenities = listOf("Airport Lounge", "24/7 Security")
         )
     )
 
+    private fun calculateDistanceKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val r = 6371.0
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        return Math.round(r * c * 10.0) / 10.0
+    }
+
     override suspend fun getNearbyStations(lat: Double, lng: Double, radiusKm: Double): AppResult<List<Station>> {
-        delay(400)
-        return AppResult.Success(stations)
+        delay(300)
+        val updated = stations.map { station ->
+            val d = calculateDistanceKm(lat, lng, station.latitude, station.longitude)
+            station.copy(distanceKm = d)
+        }.sortedBy { it.distanceKm }
+        return AppResult.Success(updated)
     }
 
     override suspend fun getStationDetails(stationId: String): AppResult<Station> {
