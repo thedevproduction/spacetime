@@ -1,0 +1,371 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Spacetime Energy Futures - EV Charging Platform API",
+    "version": "1.0.0",
+    "description": "Authoritative REST API and WebSocket contract for Customer, Site Admin, Service Provider, and Platform Super Admin."
+  },
+  "servers": [
+    {
+      "url": "https://dev-api.example.com/api/v1",
+      "description": "Development Sandbox"
+    },
+    {
+      "url": "https://api.example.com/api/v1",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/auth/otp/send": {
+      "post": {
+        "summary": "Send Mobile OTP",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country_code": {
+                    "type": "string",
+                    "example": "+91"
+                  },
+                  "mobile_number": {
+                    "type": "string",
+                    "example": "9876543210"
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "enum": [
+                      "LOGIN",
+                      "VERIFICATION"
+                    ]
+                  }
+                },
+                "required": [
+                  "mobile_number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Challenge created with rate limits and expiry"
+          }
+        }
+      }
+    },
+    "/auth/otp/verify": {
+      "post": {
+        "summary": "Verify OTP & Issue Bearer Tokens",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "challenge_id": {
+                    "type": "string"
+                  },
+                  "otp": {
+                    "type": "string",
+                    "example": "123456"
+                  },
+                  "device": {
+                    "type": "object",
+                    "properties": {
+                      "device_id": {
+                        "type": "string"
+                      },
+                      "platform": {
+                        "type": "string",
+                        "example": "ANDROID"
+                      },
+                      "app_version": {
+                        "type": "string",
+                        "example": "1.0.0"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "challenge_id",
+                  "otp",
+                  "device"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Access token, refresh token and user roles returned."
+          }
+        }
+      }
+    },
+    "/stations/nearby": {
+      "get": {
+        "summary": "Discover Nearby Charging Stations",
+        "parameters": [
+          {
+            "name": "latitude",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "default": 25
+            }
+          },
+          {
+            "name": "availability",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "AVAILABLE",
+                "OCCUPIED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of station hubs with live connector availability."
+          }
+        }
+      }
+    },
+    "/charging/qr/resolve": {
+      "post": {
+        "summary": "Authoritatively Resolve Charger QR Reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "qr_payload": {
+                    "type": "string",
+                    "example": "EVCHARGE:CHG-01-DC"
+                  }
+                },
+                "required": [
+                  "qr_payload"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Station, charger, connector resolution with start eligibility."
+          }
+        }
+      }
+    },
+    "/charging/quote": {
+      "post": {
+        "summary": "Create Immutable Charging Tariff Quote Snapshot",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_id": {
+                    "type": "string"
+                  },
+                  "charger_id": {
+                    "type": "string"
+                  },
+                  "connector_id": {
+                    "type": "integer"
+                  },
+                  "vehicle_id": {
+                    "type": "string"
+                  },
+                  "payment_method": {
+                    "type": "string",
+                    "enum": [
+                      "WALLET",
+                      "UPI"
+                    ]
+                  }
+                },
+                "required": [
+                  "station_id",
+                  "charger_id",
+                  "connector_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Quote created with pricing snapshot and expiry."
+          }
+        }
+      }
+    },
+    "/charging/sessions/start": {
+      "post": {
+        "summary": "Execute Start Command via CSMS / OCPP",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "quote_id": {
+                    "type": "string"
+                  },
+                  "payment_mode": {
+                    "type": "string",
+                    "default": "WALLET"
+                  }
+                },
+                "required": [
+                  "quote_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Session created in STARTING status awaiting charger energy flow."
+          }
+        }
+      }
+    },
+    "/charging/sessions/active": {
+      "get": {
+        "summary": "Poll Live Telemetry for Active Session",
+        "responses": {
+          "200": {
+            "description": "Instantaneous power (kW), energy (kWh), and duration."
+          }
+        }
+      }
+    },
+    "/charging/sessions/{session_id}/stop": {
+      "post": {
+        "summary": "Stop Session & Trigger Final Meter Reconciliation",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Charger stop acknowledged, transitioning to STOPPING."
+          }
+        }
+      }
+    },
+    "/wallet": {
+      "get": {
+        "summary": "Fetch Customer Wallet Ledger Balance",
+        "responses": {
+          "200": {
+            "description": "Available, reserved, and promotional balances."
+          }
+        }
+      }
+    },
+    "/wallet/topups": {
+      "post": {
+        "summary": "Initiate Gateway Order for Top-up",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount_minor": {
+                    "type": "integer",
+                    "example": 50000
+                  },
+                  "currency": {
+                    "type": "string",
+                    "default": "INR"
+                  },
+                  "payment_method": {
+                    "type": "string",
+                    "default": "UPI"
+                  }
+                },
+                "required": [
+                  "amount_minor"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment order ID created with gateway checkout URL."
+          }
+        }
+      }
+    },
+    "/site-admin/dashboard": {
+      "get": {
+        "summary": "Site Admin Multi-Hub Telemetry",
+        "responses": {
+          "200": {
+            "description": "Revenue, kWh dispensed, sessions, and gun status."
+          }
+        }
+      }
+    },
+    "/service-provider/dashboard": {
+      "get": {
+        "summary": "Service Provider Enterprise Telemetry",
+        "responses": {
+          "200": {
+            "description": "Installations, equipment, and repair tickets."
+          }
+        }
+      }
+    }
+  }
+}
