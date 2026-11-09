@@ -18,9 +18,10 @@ enum class StationSortOption(val displayName: String) {
     HIGHEST_RATED("Top Rated")
 }
 
-enum class MapEngine {
-    INTERACTIVE_MAP,
-    GOOGLE_MAPS
+enum class MapEngine(val displayName: String) {
+    NATIVE_VECTOR("Vector Map"),
+    INTERACTIVE_OSM("OpenStreetMap"),
+    GOOGLE_MAPS("Google Maps")
 }
 
 data class StationFilterState(
@@ -39,13 +40,13 @@ data class StationDiscoveryUiState(
     val userLatitude: Double = 23.1815,
     val userLongitude: Double = 79.9864,
     val isMapMode: Boolean = true,
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
     val error: String? = null,
     val searchQuery: String = "",
     val sortOption: StationSortOption = StationSortOption.NEAREST,
     val filters: StationFilterState = StationFilterState(),
     val activeQuickFilter: String = "ALL",
-    val mapEngine: MapEngine = MapEngine.INTERACTIVE_MAP,
+    val mapEngine: MapEngine = MapEngine.NATIVE_VECTOR,
     val isFilterSheetVisible: Boolean = false
 )
 
@@ -89,11 +90,19 @@ class StationDiscoveryViewModel @Inject constructor(
         _uiState.update { it.copy(isMapMode = !it.isMapMode) }
     }
 
-    fun toggleMapEngine() {
+    fun cycleMapEngine() {
         _uiState.update {
-            val next = if (it.mapEngine == MapEngine.INTERACTIVE_MAP) MapEngine.GOOGLE_MAPS else MapEngine.INTERACTIVE_MAP
+            val next = when (it.mapEngine) {
+                MapEngine.NATIVE_VECTOR -> MapEngine.INTERACTIVE_OSM
+                MapEngine.INTERACTIVE_OSM -> MapEngine.GOOGLE_MAPS
+                MapEngine.GOOGLE_MAPS -> MapEngine.NATIVE_VECTOR
+            }
             it.copy(mapEngine = next)
         }
+    }
+
+    fun setMapEngine(engine: MapEngine) {
+        _uiState.update { it.copy(mapEngine = engine) }
     }
 
     fun onSearchQueryChanged(query: String) {

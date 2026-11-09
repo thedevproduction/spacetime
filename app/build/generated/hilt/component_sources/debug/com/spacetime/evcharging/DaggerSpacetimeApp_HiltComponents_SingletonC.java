@@ -442,81 +442,105 @@ public final class DaggerSpacetimeApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_spacetime_evcharging_feature_charging_ChargingViewModel = "com.spacetime.evcharging.feature.charging.ChargingViewModel";
-
-      static String com_spacetime_evcharging_feature_provider_service_ProviderServiceViewModel = "com.spacetime.evcharging.feature.provider.service.ProviderServiceViewModel";
-
-      static String com_spacetime_evcharging_feature_site_employees_SiteEmployeesViewModel = "com.spacetime.evcharging.feature.site.employees.SiteEmployeesViewModel";
-
-      static String com_spacetime_evcharging_feature_site_revenue_SiteRevenueViewModel = "com.spacetime.evcharging.feature.site.revenue.SiteRevenueViewModel";
-
       static String com_spacetime_evcharging_feature_vehicles_VehiclesViewModel = "com.spacetime.evcharging.feature.vehicles.VehiclesViewModel";
 
-      static String com_spacetime_evcharging_feature_auth_splash_SplashViewModel = "com.spacetime.evcharging.feature.auth.splash.SplashViewModel";
+      static String com_spacetime_evcharging_feature_station_details_StationDetailsViewModel = "com.spacetime.evcharging.feature.station.details.StationDetailsViewModel";
 
-      static String com_spacetime_evcharging_feature_provider_dashboard_ProviderDashboardViewModel = "com.spacetime.evcharging.feature.provider.dashboard.ProviderDashboardViewModel";
+      static String com_spacetime_evcharging_feature_site_dashboard_SiteAdminDashboardViewModel = "com.spacetime.evcharging.feature.site.dashboard.SiteAdminDashboardViewModel";
+
+      static String com_spacetime_evcharging_feature_customer_profile_ProfileViewModel = "com.spacetime.evcharging.feature.customer.profile.ProfileViewModel";
 
       static String com_spacetime_evcharging_feature_station_discovery_StationDiscoveryViewModel = "com.spacetime.evcharging.feature.station.discovery.StationDiscoveryViewModel";
 
-      static String com_spacetime_evcharging_feature_site_sessions_SiteSessionsViewModel = "com.spacetime.evcharging.feature.site.sessions.SiteSessionsViewModel";
+      static String com_spacetime_evcharging_feature_auth_otp_OtpVerificationViewModel = "com.spacetime.evcharging.feature.auth.otp.OtpVerificationViewModel";
 
-      static String com_spacetime_evcharging_feature_site_dashboard_SiteAdminDashboardViewModel = "com.spacetime.evcharging.feature.site.dashboard.SiteAdminDashboardViewModel";
+      static String com_spacetime_evcharging_feature_auth_onboarding_OnboardingViewModel = "com.spacetime.evcharging.feature.auth.onboarding.OnboardingViewModel";
+
+      static String com_spacetime_evcharging_feature_site_employees_SiteEmployeesViewModel = "com.spacetime.evcharging.feature.site.employees.SiteEmployeesViewModel";
+
+      static String com_spacetime_evcharging_feature_provider_service_ProviderServiceViewModel = "com.spacetime.evcharging.feature.provider.service.ProviderServiceViewModel";
+
+      static String com_spacetime_evcharging_feature_charging_ChargingViewModel = "com.spacetime.evcharging.feature.charging.ChargingViewModel";
+
+      static String com_spacetime_evcharging_feature_qr_scanner_QrScannerViewModel = "com.spacetime.evcharging.feature.qr.scanner.QrScannerViewModel";
+
+      static String com_spacetime_evcharging_feature_site_stations_SiteStationsViewModel = "com.spacetime.evcharging.feature.site.stations.SiteStationsViewModel";
+
+      static String com_spacetime_evcharging_feature_wallet_WalletViewModel = "com.spacetime.evcharging.feature.wallet.WalletViewModel";
+
+      static String com_spacetime_evcharging_feature_provider_dashboard_ProviderDashboardViewModel = "com.spacetime.evcharging.feature.provider.dashboard.ProviderDashboardViewModel";
+
+      static String com_spacetime_evcharging_feature_auth_roleselection_RoleSelectionViewModel = "com.spacetime.evcharging.feature.auth.roleselection.RoleSelectionViewModel";
+
+      static String com_spacetime_evcharging_feature_site_revenue_SiteRevenueViewModel = "com.spacetime.evcharging.feature.site.revenue.SiteRevenueViewModel";
+
+      static String com_spacetime_evcharging_feature_auth_splash_SplashViewModel = "com.spacetime.evcharging.feature.auth.splash.SplashViewModel";
+
+      static String com_spacetime_evcharging_feature_provider_equipment_ProviderEquipmentViewModel = "com.spacetime.evcharging.feature.provider.equipment.ProviderEquipmentViewModel";
 
       static String com_spacetime_evcharging_feature_customer_home_CustomerHomeViewModel = "com.spacetime.evcharging.feature.customer.home.CustomerHomeViewModel";
 
       static String com_spacetime_evcharging_feature_provider_installations_ProviderInstallationsViewModel = "com.spacetime.evcharging.feature.provider.installations.ProviderInstallationsViewModel";
 
-      static String com_spacetime_evcharging_feature_auth_otp_OtpVerificationViewModel = "com.spacetime.evcharging.feature.auth.otp.OtpVerificationViewModel";
-
-      static String com_spacetime_evcharging_feature_site_stations_SiteStationsViewModel = "com.spacetime.evcharging.feature.site.stations.SiteStationsViewModel";
-
-      static String com_spacetime_evcharging_feature_customer_profile_ProfileViewModel = "com.spacetime.evcharging.feature.customer.profile.ProfileViewModel";
-
-      static String com_spacetime_evcharging_feature_station_details_StationDetailsViewModel = "com.spacetime.evcharging.feature.station.details.StationDetailsViewModel";
-
-      static String com_spacetime_evcharging_feature_wallet_WalletViewModel = "com.spacetime.evcharging.feature.wallet.WalletViewModel";
-
-      static String com_spacetime_evcharging_feature_auth_welcome_WelcomeViewModel = "com.spacetime.evcharging.feature.auth.welcome.WelcomeViewModel";
-
-      static String com_spacetime_evcharging_feature_auth_onboarding_OnboardingViewModel = "com.spacetime.evcharging.feature.auth.onboarding.OnboardingViewModel";
-
       static String com_spacetime_evcharging_feature_provider_technicians_ProviderTechniciansViewModel = "com.spacetime.evcharging.feature.provider.technicians.ProviderTechniciansViewModel";
 
-      static String com_spacetime_evcharging_feature_auth_roleselection_RoleSelectionViewModel = "com.spacetime.evcharging.feature.auth.roleselection.RoleSelectionViewModel";
+      static String com_spacetime_evcharging_feature_site_sessions_SiteSessionsViewModel = "com.spacetime.evcharging.feature.site.sessions.SiteSessionsViewModel";
 
-      static String com_spacetime_evcharging_feature_provider_equipment_ProviderEquipmentViewModel = "com.spacetime.evcharging.feature.provider.equipment.ProviderEquipmentViewModel";
-
-      static String com_spacetime_evcharging_feature_qr_scanner_QrScannerViewModel = "com.spacetime.evcharging.feature.qr.scanner.QrScannerViewModel";
-
-      @KeepFieldType
-      ChargingViewModel com_spacetime_evcharging_feature_charging_ChargingViewModel2;
-
-      @KeepFieldType
-      ProviderServiceViewModel com_spacetime_evcharging_feature_provider_service_ProviderServiceViewModel2;
-
-      @KeepFieldType
-      SiteEmployeesViewModel com_spacetime_evcharging_feature_site_employees_SiteEmployeesViewModel2;
-
-      @KeepFieldType
-      SiteRevenueViewModel com_spacetime_evcharging_feature_site_revenue_SiteRevenueViewModel2;
+      static String com_spacetime_evcharging_feature_auth_welcome_WelcomeViewModel = "com.spacetime.evcharging.feature.auth.welcome.WelcomeViewModel";
 
       @KeepFieldType
       VehiclesViewModel com_spacetime_evcharging_feature_vehicles_VehiclesViewModel2;
 
       @KeepFieldType
-      SplashViewModel com_spacetime_evcharging_feature_auth_splash_SplashViewModel2;
+      StationDetailsViewModel com_spacetime_evcharging_feature_station_details_StationDetailsViewModel2;
 
       @KeepFieldType
-      ProviderDashboardViewModel com_spacetime_evcharging_feature_provider_dashboard_ProviderDashboardViewModel2;
+      SiteAdminDashboardViewModel com_spacetime_evcharging_feature_site_dashboard_SiteAdminDashboardViewModel2;
+
+      @KeepFieldType
+      ProfileViewModel com_spacetime_evcharging_feature_customer_profile_ProfileViewModel2;
 
       @KeepFieldType
       StationDiscoveryViewModel com_spacetime_evcharging_feature_station_discovery_StationDiscoveryViewModel2;
 
       @KeepFieldType
-      SiteSessionsViewModel com_spacetime_evcharging_feature_site_sessions_SiteSessionsViewModel2;
+      OtpVerificationViewModel com_spacetime_evcharging_feature_auth_otp_OtpVerificationViewModel2;
 
       @KeepFieldType
-      SiteAdminDashboardViewModel com_spacetime_evcharging_feature_site_dashboard_SiteAdminDashboardViewModel2;
+      OnboardingViewModel com_spacetime_evcharging_feature_auth_onboarding_OnboardingViewModel2;
+
+      @KeepFieldType
+      SiteEmployeesViewModel com_spacetime_evcharging_feature_site_employees_SiteEmployeesViewModel2;
+
+      @KeepFieldType
+      ProviderServiceViewModel com_spacetime_evcharging_feature_provider_service_ProviderServiceViewModel2;
+
+      @KeepFieldType
+      ChargingViewModel com_spacetime_evcharging_feature_charging_ChargingViewModel2;
+
+      @KeepFieldType
+      QrScannerViewModel com_spacetime_evcharging_feature_qr_scanner_QrScannerViewModel2;
+
+      @KeepFieldType
+      SiteStationsViewModel com_spacetime_evcharging_feature_site_stations_SiteStationsViewModel2;
+
+      @KeepFieldType
+      WalletViewModel com_spacetime_evcharging_feature_wallet_WalletViewModel2;
+
+      @KeepFieldType
+      ProviderDashboardViewModel com_spacetime_evcharging_feature_provider_dashboard_ProviderDashboardViewModel2;
+
+      @KeepFieldType
+      RoleSelectionViewModel com_spacetime_evcharging_feature_auth_roleselection_RoleSelectionViewModel2;
+
+      @KeepFieldType
+      SiteRevenueViewModel com_spacetime_evcharging_feature_site_revenue_SiteRevenueViewModel2;
+
+      @KeepFieldType
+      SplashViewModel com_spacetime_evcharging_feature_auth_splash_SplashViewModel2;
+
+      @KeepFieldType
+      ProviderEquipmentViewModel com_spacetime_evcharging_feature_provider_equipment_ProviderEquipmentViewModel2;
 
       @KeepFieldType
       CustomerHomeViewModel com_spacetime_evcharging_feature_customer_home_CustomerHomeViewModel2;
@@ -525,37 +549,13 @@ public final class DaggerSpacetimeApp_HiltComponents_SingletonC {
       ProviderInstallationsViewModel com_spacetime_evcharging_feature_provider_installations_ProviderInstallationsViewModel2;
 
       @KeepFieldType
-      OtpVerificationViewModel com_spacetime_evcharging_feature_auth_otp_OtpVerificationViewModel2;
-
-      @KeepFieldType
-      SiteStationsViewModel com_spacetime_evcharging_feature_site_stations_SiteStationsViewModel2;
-
-      @KeepFieldType
-      ProfileViewModel com_spacetime_evcharging_feature_customer_profile_ProfileViewModel2;
-
-      @KeepFieldType
-      StationDetailsViewModel com_spacetime_evcharging_feature_station_details_StationDetailsViewModel2;
-
-      @KeepFieldType
-      WalletViewModel com_spacetime_evcharging_feature_wallet_WalletViewModel2;
-
-      @KeepFieldType
-      WelcomeViewModel com_spacetime_evcharging_feature_auth_welcome_WelcomeViewModel2;
-
-      @KeepFieldType
-      OnboardingViewModel com_spacetime_evcharging_feature_auth_onboarding_OnboardingViewModel2;
-
-      @KeepFieldType
       ProviderTechniciansViewModel com_spacetime_evcharging_feature_provider_technicians_ProviderTechniciansViewModel2;
 
       @KeepFieldType
-      RoleSelectionViewModel com_spacetime_evcharging_feature_auth_roleselection_RoleSelectionViewModel2;
+      SiteSessionsViewModel com_spacetime_evcharging_feature_site_sessions_SiteSessionsViewModel2;
 
       @KeepFieldType
-      ProviderEquipmentViewModel com_spacetime_evcharging_feature_provider_equipment_ProviderEquipmentViewModel2;
-
-      @KeepFieldType
-      QrScannerViewModel com_spacetime_evcharging_feature_qr_scanner_QrScannerViewModel2;
+      WelcomeViewModel com_spacetime_evcharging_feature_auth_welcome_WelcomeViewModel2;
     }
   }
 
@@ -664,72 +664,63 @@ public final class DaggerSpacetimeApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_spacetime_evcharging_feature_station_details_StationDetailsViewModel = "com.spacetime.evcharging.feature.station.details.StationDetailsViewModel";
-
-      static String com_spacetime_evcharging_feature_customer_profile_ProfileViewModel = "com.spacetime.evcharging.feature.customer.profile.ProfileViewModel";
-
-      static String com_spacetime_evcharging_feature_provider_installations_ProviderInstallationsViewModel = "com.spacetime.evcharging.feature.provider.installations.ProviderInstallationsViewModel";
-
-      static String com_spacetime_evcharging_feature_vehicles_VehiclesViewModel = "com.spacetime.evcharging.feature.vehicles.VehiclesViewModel";
-
       static String com_spacetime_evcharging_feature_auth_welcome_WelcomeViewModel = "com.spacetime.evcharging.feature.auth.welcome.WelcomeViewModel";
 
-      static String com_spacetime_evcharging_feature_site_stations_SiteStationsViewModel = "com.spacetime.evcharging.feature.site.stations.SiteStationsViewModel";
+      static String com_spacetime_evcharging_feature_customer_home_CustomerHomeViewModel = "com.spacetime.evcharging.feature.customer.home.CustomerHomeViewModel";
 
-      static String com_spacetime_evcharging_feature_auth_splash_SplashViewModel = "com.spacetime.evcharging.feature.auth.splash.SplashViewModel";
+      static String com_spacetime_evcharging_feature_station_discovery_StationDiscoveryViewModel = "com.spacetime.evcharging.feature.station.discovery.StationDiscoveryViewModel";
+
+      static String com_spacetime_evcharging_feature_auth_onboarding_OnboardingViewModel = "com.spacetime.evcharging.feature.auth.onboarding.OnboardingViewModel";
 
       static String com_spacetime_evcharging_feature_auth_otp_OtpVerificationViewModel = "com.spacetime.evcharging.feature.auth.otp.OtpVerificationViewModel";
 
       static String com_spacetime_evcharging_feature_qr_scanner_QrScannerViewModel = "com.spacetime.evcharging.feature.qr.scanner.QrScannerViewModel";
 
-      static String com_spacetime_evcharging_feature_site_dashboard_SiteAdminDashboardViewModel = "com.spacetime.evcharging.feature.site.dashboard.SiteAdminDashboardViewModel";
+      static String com_spacetime_evcharging_feature_provider_service_ProviderServiceViewModel = "com.spacetime.evcharging.feature.provider.service.ProviderServiceViewModel";
 
-      static String com_spacetime_evcharging_feature_auth_onboarding_OnboardingViewModel = "com.spacetime.evcharging.feature.auth.onboarding.OnboardingViewModel";
-
-      static String com_spacetime_evcharging_feature_wallet_WalletViewModel = "com.spacetime.evcharging.feature.wallet.WalletViewModel";
-
-      static String com_spacetime_evcharging_feature_provider_dashboard_ProviderDashboardViewModel = "com.spacetime.evcharging.feature.provider.dashboard.ProviderDashboardViewModel";
-
-      static String com_spacetime_evcharging_feature_provider_equipment_ProviderEquipmentViewModel = "com.spacetime.evcharging.feature.provider.equipment.ProviderEquipmentViewModel";
+      static String com_spacetime_evcharging_feature_provider_technicians_ProviderTechniciansViewModel = "com.spacetime.evcharging.feature.provider.technicians.ProviderTechniciansViewModel";
 
       static String com_spacetime_evcharging_feature_site_revenue_SiteRevenueViewModel = "com.spacetime.evcharging.feature.site.revenue.SiteRevenueViewModel";
 
       static String com_spacetime_evcharging_feature_charging_ChargingViewModel = "com.spacetime.evcharging.feature.charging.ChargingViewModel";
 
-      static String com_spacetime_evcharging_feature_provider_service_ProviderServiceViewModel = "com.spacetime.evcharging.feature.provider.service.ProviderServiceViewModel";
+      static String com_spacetime_evcharging_feature_customer_profile_ProfileViewModel = "com.spacetime.evcharging.feature.customer.profile.ProfileViewModel";
 
-      static String com_spacetime_evcharging_feature_provider_technicians_ProviderTechniciansViewModel = "com.spacetime.evcharging.feature.provider.technicians.ProviderTechniciansViewModel";
+      static String com_spacetime_evcharging_feature_wallet_WalletViewModel = "com.spacetime.evcharging.feature.wallet.WalletViewModel";
 
-      static String com_spacetime_evcharging_feature_site_employees_SiteEmployeesViewModel = "com.spacetime.evcharging.feature.site.employees.SiteEmployeesViewModel";
-
-      static String com_spacetime_evcharging_feature_station_discovery_StationDiscoveryViewModel = "com.spacetime.evcharging.feature.station.discovery.StationDiscoveryViewModel";
+      static String com_spacetime_evcharging_feature_provider_dashboard_ProviderDashboardViewModel = "com.spacetime.evcharging.feature.provider.dashboard.ProviderDashboardViewModel";
 
       static String com_spacetime_evcharging_feature_auth_roleselection_RoleSelectionViewModel = "com.spacetime.evcharging.feature.auth.roleselection.RoleSelectionViewModel";
 
-      static String com_spacetime_evcharging_feature_customer_home_CustomerHomeViewModel = "com.spacetime.evcharging.feature.customer.home.CustomerHomeViewModel";
+      static String com_spacetime_evcharging_feature_provider_equipment_ProviderEquipmentViewModel = "com.spacetime.evcharging.feature.provider.equipment.ProviderEquipmentViewModel";
+
+      static String com_spacetime_evcharging_feature_vehicles_VehiclesViewModel = "com.spacetime.evcharging.feature.vehicles.VehiclesViewModel";
+
+      static String com_spacetime_evcharging_feature_site_stations_SiteStationsViewModel = "com.spacetime.evcharging.feature.site.stations.SiteStationsViewModel";
+
+      static String com_spacetime_evcharging_feature_site_employees_SiteEmployeesViewModel = "com.spacetime.evcharging.feature.site.employees.SiteEmployeesViewModel";
+
+      static String com_spacetime_evcharging_feature_site_dashboard_SiteAdminDashboardViewModel = "com.spacetime.evcharging.feature.site.dashboard.SiteAdminDashboardViewModel";
 
       static String com_spacetime_evcharging_feature_site_sessions_SiteSessionsViewModel = "com.spacetime.evcharging.feature.site.sessions.SiteSessionsViewModel";
 
-      @KeepFieldType
-      StationDetailsViewModel com_spacetime_evcharging_feature_station_details_StationDetailsViewModel2;
+      static String com_spacetime_evcharging_feature_auth_splash_SplashViewModel = "com.spacetime.evcharging.feature.auth.splash.SplashViewModel";
 
-      @KeepFieldType
-      ProfileViewModel com_spacetime_evcharging_feature_customer_profile_ProfileViewModel2;
+      static String com_spacetime_evcharging_feature_station_details_StationDetailsViewModel = "com.spacetime.evcharging.feature.station.details.StationDetailsViewModel";
 
-      @KeepFieldType
-      ProviderInstallationsViewModel com_spacetime_evcharging_feature_provider_installations_ProviderInstallationsViewModel2;
-
-      @KeepFieldType
-      VehiclesViewModel com_spacetime_evcharging_feature_vehicles_VehiclesViewModel2;
+      static String com_spacetime_evcharging_feature_provider_installations_ProviderInstallationsViewModel = "com.spacetime.evcharging.feature.provider.installations.ProviderInstallationsViewModel";
 
       @KeepFieldType
       WelcomeViewModel com_spacetime_evcharging_feature_auth_welcome_WelcomeViewModel2;
 
       @KeepFieldType
-      SiteStationsViewModel com_spacetime_evcharging_feature_site_stations_SiteStationsViewModel2;
+      CustomerHomeViewModel com_spacetime_evcharging_feature_customer_home_CustomerHomeViewModel2;
 
       @KeepFieldType
-      SplashViewModel com_spacetime_evcharging_feature_auth_splash_SplashViewModel2;
+      StationDiscoveryViewModel com_spacetime_evcharging_feature_station_discovery_StationDiscoveryViewModel2;
+
+      @KeepFieldType
+      OnboardingViewModel com_spacetime_evcharging_feature_auth_onboarding_OnboardingViewModel2;
 
       @KeepFieldType
       OtpVerificationViewModel com_spacetime_evcharging_feature_auth_otp_OtpVerificationViewModel2;
@@ -738,19 +729,10 @@ public final class DaggerSpacetimeApp_HiltComponents_SingletonC {
       QrScannerViewModel com_spacetime_evcharging_feature_qr_scanner_QrScannerViewModel2;
 
       @KeepFieldType
-      SiteAdminDashboardViewModel com_spacetime_evcharging_feature_site_dashboard_SiteAdminDashboardViewModel2;
+      ProviderServiceViewModel com_spacetime_evcharging_feature_provider_service_ProviderServiceViewModel2;
 
       @KeepFieldType
-      OnboardingViewModel com_spacetime_evcharging_feature_auth_onboarding_OnboardingViewModel2;
-
-      @KeepFieldType
-      WalletViewModel com_spacetime_evcharging_feature_wallet_WalletViewModel2;
-
-      @KeepFieldType
-      ProviderDashboardViewModel com_spacetime_evcharging_feature_provider_dashboard_ProviderDashboardViewModel2;
-
-      @KeepFieldType
-      ProviderEquipmentViewModel com_spacetime_evcharging_feature_provider_equipment_ProviderEquipmentViewModel2;
+      ProviderTechniciansViewModel com_spacetime_evcharging_feature_provider_technicians_ProviderTechniciansViewModel2;
 
       @KeepFieldType
       SiteRevenueViewModel com_spacetime_evcharging_feature_site_revenue_SiteRevenueViewModel2;
@@ -759,25 +741,43 @@ public final class DaggerSpacetimeApp_HiltComponents_SingletonC {
       ChargingViewModel com_spacetime_evcharging_feature_charging_ChargingViewModel2;
 
       @KeepFieldType
-      ProviderServiceViewModel com_spacetime_evcharging_feature_provider_service_ProviderServiceViewModel2;
+      ProfileViewModel com_spacetime_evcharging_feature_customer_profile_ProfileViewModel2;
 
       @KeepFieldType
-      ProviderTechniciansViewModel com_spacetime_evcharging_feature_provider_technicians_ProviderTechniciansViewModel2;
+      WalletViewModel com_spacetime_evcharging_feature_wallet_WalletViewModel2;
 
       @KeepFieldType
-      SiteEmployeesViewModel com_spacetime_evcharging_feature_site_employees_SiteEmployeesViewModel2;
-
-      @KeepFieldType
-      StationDiscoveryViewModel com_spacetime_evcharging_feature_station_discovery_StationDiscoveryViewModel2;
+      ProviderDashboardViewModel com_spacetime_evcharging_feature_provider_dashboard_ProviderDashboardViewModel2;
 
       @KeepFieldType
       RoleSelectionViewModel com_spacetime_evcharging_feature_auth_roleselection_RoleSelectionViewModel2;
 
       @KeepFieldType
-      CustomerHomeViewModel com_spacetime_evcharging_feature_customer_home_CustomerHomeViewModel2;
+      ProviderEquipmentViewModel com_spacetime_evcharging_feature_provider_equipment_ProviderEquipmentViewModel2;
+
+      @KeepFieldType
+      VehiclesViewModel com_spacetime_evcharging_feature_vehicles_VehiclesViewModel2;
+
+      @KeepFieldType
+      SiteStationsViewModel com_spacetime_evcharging_feature_site_stations_SiteStationsViewModel2;
+
+      @KeepFieldType
+      SiteEmployeesViewModel com_spacetime_evcharging_feature_site_employees_SiteEmployeesViewModel2;
+
+      @KeepFieldType
+      SiteAdminDashboardViewModel com_spacetime_evcharging_feature_site_dashboard_SiteAdminDashboardViewModel2;
 
       @KeepFieldType
       SiteSessionsViewModel com_spacetime_evcharging_feature_site_sessions_SiteSessionsViewModel2;
+
+      @KeepFieldType
+      SplashViewModel com_spacetime_evcharging_feature_auth_splash_SplashViewModel2;
+
+      @KeepFieldType
+      StationDetailsViewModel com_spacetime_evcharging_feature_station_details_StationDetailsViewModel2;
+
+      @KeepFieldType
+      ProviderInstallationsViewModel com_spacetime_evcharging_feature_provider_installations_ProviderInstallationsViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -988,7 +988,7 @@ public final class DaggerSpacetimeApp_HiltComponents_SingletonC {
     }
 
     @Override
-    public void injectSpacetimeApp(SpacetimeApp arg0) {
+    public void injectSpacetimeApp(SpacetimeApp spacetimeApp) {
     }
 
     @Override

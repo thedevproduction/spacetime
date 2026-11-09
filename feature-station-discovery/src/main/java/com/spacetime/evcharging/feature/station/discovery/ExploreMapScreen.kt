@@ -1,6 +1,7 @@
 package com.spacetime.evcharging.feature.station.discovery
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -33,7 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.spacetime.evcharging.core.common.model.ChargerStatus
 import com.spacetime.evcharging.core.designsystem.component.*
 import com.spacetime.evcharging.core.designsystem.theme.*
@@ -49,41 +52,59 @@ fun ExploreMapScreen(
     val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
+    @SuppressLint("MissingPermission")
+    fun fetchUserLocation() {
+        val fine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (!fine && !coarse) return
+
+        try {
+            fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
+                if (loc != null) {
+                    viewModel.updateUserLocation(loc.latitude, loc.longitude)
+                } else {
+                    // In emulators or fresh boots, lastLocation can be null: request fresh single location
+                    val req = CurrentLocationRequest.Builder()
+                        .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                        .build()
+                    fusedLocationClient.getCurrentLocation(req, null).addOnSuccessListener { freshLoc ->
+                        if (freshLoc != null) {
+                            viewModel.updateUserLocation(freshLoc.latitude, freshLoc.longitude)
+                        } else {
+                            viewModel.loadStations(uiState.userLatitude, uiState.userLongitude)
+                        }
+                    }.addOnFailureListener {
+                        viewModel.loadStations(uiState.userLatitude, uiState.userLongitude)
+                    }
+                }
+            }.addOnFailureListener {
+                viewModel.loadStations(uiState.userLatitude, uiState.userLongitude)
+            }
+        } catch (e: SecurityException) {
+            viewModel.loadStations(uiState.userLatitude, uiState.userLongitude)
+        }
+    }
+
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
         val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         if (fineGranted || coarseGranted) {
-            try {
-                fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
-                    if (loc != null) {
-                        viewModel.updateUserLocation(loc.latitude, loc.longitude)
-                        Toast.makeText(context, "Location updated", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } catch (e: SecurityException) {
-                // Handled gracefully
-            }
+            fetchUserLocation()
+            Toast.makeText(context, "Location permission granted", Toast.LENGTH_SHORT).show()
+        } else {
+            // Permission denied: gracefully load default pilot stations (Jabalpur/Bhopal)
+            viewModel.loadStations(uiState.userLatitude, uiState.userLongitude)
         }
     }
 
-    fun requestLocationUpdate() {
+    // Auto-check on launch
+    LaunchedEffect(Unit) {
         val fine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val coarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         if (fine || coarse) {
-            try {
-                fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
-                    if (loc != null) {
-                        viewModel.updateUserLocation(loc.latitude, loc.longitude)
-                        Toast.makeText(context, "Centered on your location", Toast.LENGTH_SHORT).show()
-                    } else {
-                        viewModel.loadStations(uiState.userLatitude, uiState.userLongitude)
-                    }
-                }
-            } catch (e: SecurityException) {
-                viewModel.loadStations(uiState.userLatitude, uiState.userLongitude)
-            }
+            fetchUserLocation()
         } else {
             locationPermissionLauncher.launch(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -100,23 +121,35 @@ fun ExploreMapScreen(
                 .padding(padding)
         ) {
             if (uiState.isMapMode) {
-                // Real Map Integration: Interactive High-Res Map with Google Maps toggle
-                if (uiState.mapEngine == MapEngine.GOOGLE_MAPS) {
-                    GoogleMapsView(
-                        stations = uiState.filteredStations,
-                        selectedStation = uiState.selectedStation,
-                        userLatitude = uiState.userLatitude,
-                        userLongitude = uiState.userLongitude,
-                        onSelectStation = viewModel::selectStation
-                    )
-                } else {
-                    RealInteractiveMapView(
-                        stations = uiState.filteredStations,
-                        selectedStation = uiState.selectedStation,
-                        userLatitude = uiState.userLatitude,
-                        userLongitude = uiState.userLongitude,
-                        onSelectStation = viewModel::selectStation
-                    )
+                // Multi-engine map support with Native Vector Map as default guaranteed engine
+                when (uiState.mapEngine) {
+                    MapEngine.NATIVE_VECTOR -> {
+                        NativeMapView(
+                            stations = uiState.filteredStations,
+                            selectedStation = uiState.selectedStation,
+                            userLatitude = uiState.userLatitude,
+                            userLongitude = uiState.userLongitude,
+                            onSelectStation = viewModel::selectStation
+                        )
+                    }
+                    MapEngine.INTERACTIVE_OSM -> {
+                        RealInteractiveMapView(
+                            stations = uiState.filteredStations,
+                            selectedStation = uiState.selectedStation,
+                            userLatitude = uiState.userLatitude,
+                            userLongitude = uiState.userLongitude,
+                            onSelectStation = viewModel::selectStation
+                        )
+                    }
+                    MapEngine.GOOGLE_MAPS -> {
+                        GoogleMapsView(
+                            stations = uiState.filteredStations,
+                            selectedStation = uiState.selectedStation,
+                            userLatitude = uiState.userLatitude,
+                            userLongitude = uiState.userLongitude,
+                            onSelectStation = viewModel::selectStation
+                        )
+                    }
                 }
             } else {
                 // Full List View (CUS-008)
@@ -200,7 +233,7 @@ fun ExploreMapScreen(
                 }
             }
 
-            // Floating Controls on Map: Recenter, Toggle Map Engine, Toggle View
+            // Floating Controls: Recenter, Toggle Map Engine, Toggle View
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -210,26 +243,48 @@ fun ExploreMapScreen(
                     ),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // Map Engine Switcher (Leaflet OSM / Google Maps)
+                // Map Engine Switcher Button (Vector Map / OSM / Google Maps)
                 if (uiState.isMapMode) {
-                    FloatingActionButton(
-                        onClick = { viewModel.toggleMapEngine() },
-                        containerColor = CardBackground,
-                        contentColor = Secondary,
-                        shape = CircleShape,
-                        modifier = Modifier.size(46.dp)
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = CardBackground,
+                        shadowElevation = 4.dp,
+                        modifier = Modifier.clickable { viewModel.cycleMapEngine() }
                     ) {
-                        Icon(
-                            imageVector = if (uiState.mapEngine == MapEngine.GOOGLE_MAPS) Icons.Default.Layers else Icons.Outlined.Layers,
-                            contentDescription = "Switch Map Engine",
-                            modifier = Modifier.size(20.dp)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Layers,
+                                contentDescription = "Switch Map Engine",
+                                tint = Primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                text = uiState.mapEngine.displayName,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MainText
+                            )
+                        }
                     }
                 }
 
-                // Recenter / Locate Me
+                // Recenter / Locate Me Button
                 FloatingActionButton(
-                    onClick = { requestLocationUpdate() },
+                    onClick = {
+                        val fine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        if (fine) {
+                            fetchUserLocation()
+                            Toast.makeText(context, "Centering on your location...", Toast.LENGTH_SHORT).show()
+                        } else {
+                            locationPermissionLauncher.launch(
+                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                            )
+                        }
+                    },
                     containerColor = CardBackground,
                     contentColor = Primary,
                     shape = CircleShape,
@@ -238,7 +293,7 @@ fun ExploreMapScreen(
                     Icon(imageVector = Icons.Default.MyLocation, contentDescription = "Current Location")
                 }
 
-                // Map / List Toggle
+                // Map / List Toggle Button
                 ExtendedFloatingActionButton(
                     onClick = viewModel::toggleViewMode,
                     containerColor = Secondary,
@@ -530,7 +585,7 @@ fun StationListScreenContent(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(32.dp),
+                .padding(32.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

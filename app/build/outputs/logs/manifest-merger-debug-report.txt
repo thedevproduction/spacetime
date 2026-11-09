@@ -6,7 +6,7 @@ INJECTED from /Users/live4yashi/Documents/Spacetime/app/src/main/AndroidManifest
 INJECTED from /Users/live4yashi/Documents/Spacetime/app/src/main/AndroidManifest.xml:2:1-30:12
 MERGED from [:feature-auth] /Users/live4yashi/Documents/Spacetime/feature-auth/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
 MERGED from [:feature-customer-home] /Users/live4yashi/Documents/Spacetime/feature-customer-home/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
-MERGED from [:feature-station-discovery] /Users/live4yashi/Documents/Spacetime/feature-station-discovery/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
+MERGED from [:feature-station-discovery] /Users/live4yashi/Documents/Spacetime/feature-station-discovery/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-11:12
 MERGED from [:feature-station-details] /Users/live4yashi/Documents/Spacetime/feature-station-details/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
 MERGED from [:feature-qr-scanner] /Users/live4yashi/Documents/Spacetime/feature-qr-scanner/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
 MERGED from [:feature-charging] /Users/live4yashi/Documents/Spacetime/feature-charging/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
@@ -138,6 +138,8 @@ MERGED from [com.google.dagger:dagger-lint-aar:2.52] /Users/live4yashi/.gradle/c
 		ADDED from /Users/live4yashi/Documents/Spacetime/app/src/main/AndroidManifest.xml:2:11-69
 uses-permission#android.permission.INTERNET
 ADDED from /Users/live4yashi/Documents/Spacetime/app/src/main/AndroidManifest.xml:4:5-67
+MERGED from [:feature-station-discovery] /Users/live4yashi/Documents/Spacetime/feature-station-discovery/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:7:5-67
+MERGED from [:feature-station-discovery] /Users/live4yashi/Documents/Spacetime/feature-station-discovery/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:7:5-67
 MERGED from [com.google.android.gms:play-services-maps:19.0.0] /Users/live4yashi/.gradle/caches/8.11.1/transforms/e1642757ead0ed660f39b3eb6b85dbc3/transformed/play-services-maps-19.0.0/AndroidManifest.xml:24:5-67
 MERGED from [com.google.android.gms:play-services-maps:19.0.0] /Users/live4yashi/.gradle/caches/8.11.1/transforms/e1642757ead0ed660f39b3eb6b85dbc3/transformed/play-services-maps-19.0.0/AndroidManifest.xml:24:5-67
 	android:name
@@ -150,10 +152,14 @@ MERGED from [com.google.android.gms:play-services-maps:19.0.0] /Users/live4yashi
 		ADDED from /Users/live4yashi/Documents/Spacetime/app/src/main/AndroidManifest.xml:5:22-76
 uses-permission#android.permission.ACCESS_FINE_LOCATION
 ADDED from /Users/live4yashi/Documents/Spacetime/app/src/main/AndroidManifest.xml:6:5-79
+MERGED from [:feature-station-discovery] /Users/live4yashi/Documents/Spacetime/feature-station-discovery/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:8:5-79
+MERGED from [:feature-station-discovery] /Users/live4yashi/Documents/Spacetime/feature-station-discovery/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:8:5-79
 	android:name
 		ADDED from /Users/live4yashi/Documents/Spacetime/app/src/main/AndroidManifest.xml:6:22-76
 uses-permission#android.permission.ACCESS_COARSE_LOCATION
 ADDED from /Users/live4yashi/Documents/Spacetime/app/src/main/AndroidManifest.xml:7:5-81
+MERGED from [:feature-station-discovery] /Users/live4yashi/Documents/Spacetime/feature-station-discovery/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:9:5-81
+MERGED from [:feature-station-discovery] /Users/live4yashi/Documents/Spacetime/feature-station-discovery/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:9:5-81
 	android:name
 		ADDED from /Users/live4yashi/Documents/Spacetime/app/src/main/AndroidManifest.xml:7:22-78
 uses-permission#android.permission.CAMERA

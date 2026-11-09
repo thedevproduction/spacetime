@@ -1,9 +1,11 @@
 package com.spacetime.evcharging.feature.station.discovery
 
 import android.annotation.SuppressLint
-import android.content.Context
+import android.graphics.Bitmap
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -19,6 +21,7 @@ import com.spacetime.evcharging.core.common.model.ChargerStatus
 import com.spacetime.evcharging.data.model.Station
 import org.json.JSONArray
 import org.json.JSONObject
+import timber.log.Timber
 
 /**
  * JavaScript interface bridge for bidirectional communication between the Leaflet map and Compose.
@@ -49,6 +52,8 @@ fun RealInteractiveMapView(
                 javaScriptEnabled = true
                 domStorageEnabled = true
                 databaseEnabled = true
+                allowFileAccess = true
+                allowContentAccess = true
                 cacheMode = WebSettings.LOAD_DEFAULT
                 loadWithOverviewMode = true
                 useWideViewPort = true
@@ -57,7 +62,11 @@ fun RealInteractiveMapView(
                 setSupportZoom(true)
             }
             webChromeClient = WebChromeClient()
-            webViewClient = object : WebViewClient() {}
+            webViewClient = object : WebViewClient() {
+                override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
+                    Timber.w("WebView map resource error: ${error?.description}")
+                }
+            }
         }
     }
 
@@ -74,10 +83,10 @@ fun RealInteractiveMapView(
         }
     }
 
-    // Load or update HTML content
-    LaunchedEffect(stations) {
+    // Load or update HTML content with null base URL so CORS doesn't block local scripts
+    LaunchedEffect(stations, userLatitude, userLongitude) {
         val html = buildMapHtml(stations, userLatitude, userLongitude)
-        webView.loadDataWithBaseURL("https://spacetime.internal/", html, "text/html", "UTF-8", null)
+        webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
     }
 
     // Fly to selected station when changed
@@ -95,8 +104,8 @@ fun RealInteractiveMapView(
 }
 
 /**
- * Generates an embedded, self-contained interactive Leaflet.js HTML document
- * with custom styled SVG markers, Carto Voyager & OpenStreetMap tiles.
+ * Generates an embedded Leaflet HTML with Carto tiles and an automatic fallback
+ * vector map so the user NEVER sees a blank screen if external CDNs are unavailable.
  */
 private fun buildMapHtml(
     stations: List<Station>,
@@ -129,7 +138,7 @@ private fun buildMapHtml(
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html, #map { width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #eef2f5; }
+        body, html, #map { width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #eef2f5; }
         
         .station-pin {
             position: relative;
@@ -183,107 +192,130 @@ private fun buildMapHtml(
             70% { box-shadow: 0 0 0 14px rgba(37, 99, 235, 0); }
             100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
         }
-        .leaflet-control-zoom {
-            border: none !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-            border-radius: 12px !important;
-            overflow: hidden;
-            margin-right: 16px !important;
-            margin-bottom: 90px !important;
-        }
-        .leaflet-control-zoom a {
-            background: #FFFFFF !important;
-            color: #102A43 !important;
-            border-bottom: 1px solid #E5E7EB !important;
-            width: 36px !important;
-            height: 36px !important;
-            line-height: 36px !important;
-            font-size: 16px !important;
+        #fallback-canvas {
+            display: none;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <canvas id="fallback-canvas"></canvas>
 
     <script>
         var userLat = $userLat;
         var userLng = $userLng;
         var stations = $stationsArray;
 
-        var map = L.map('map', {
-            zoomControl: false,
-            attributionControl: false
-        }).setView([userLat, userLng], 13);
+        // Check if Leaflet successfully loaded
+        if (typeof L !== 'undefined') {
+            try {
+                var map = L.map('map', {
+                    zoomControl: false,
+                    attributionControl: false
+                }).setView([userLat, userLng], 13);
 
-        L.control.zoom({ position: 'bottomright' }).addTo(map);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 19,
+                    subdomains: 'abcd',
+                    fallback: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+                }).addTo(map);
 
-        // High resolution Carto Voyager tiles with OpenStreetMap fallback
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19,
-            subdomains: 'abcd',
-            fallback: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-        }).addTo(map);
+                // User Location
+                var userIcon = L.divIcon({
+                    className: 'user-pin-wrapper',
+                    html: '<div class="user-dot"></div>',
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+                L.marker([userLat, userLng], { icon: userIcon, zIndexOffset: 1000 }).addTo(map);
 
-        // User Location Pulsing Marker
-        var userIcon = L.divIcon({
-            className: 'user-pin-wrapper',
-            html: '<div class="user-dot"></div>',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
-        });
-        L.marker([userLat, userLng], { icon: userIcon, zIndexOffset: 1000 }).addTo(map);
+                // Stations
+                stations.forEach(function(s) {
+                    var isAvail = s.status === 'AVAILABLE';
+                    var pillClass = isAvail ? 'pin-pill' : 'pin-pill busy';
+                    var dotClass = isAvail ? 'pin-dot' : 'pin-dot busy';
+                    var badgeText = s.price + ' • ' + s.avail + '/' + s.total;
 
-        var markers = {};
+                    var pinHtml = '<div class="station-pin" id="pin_' + s.id + '">' +
+                        '<div class="' + pillClass + '">' +
+                            '<span class="' + dotClass + '"></span>' +
+                            '<span>' + badgeText + '</span>' +
+                        '</div>' +
+                    '</div>';
 
-        stations.forEach(function(s) {
-            var isAvail = s.status === 'AVAILABLE';
-            var pillClass = isAvail ? 'pin-pill' : 'pin-pill busy';
-            var dotClass = isAvail ? 'pin-dot' : 'pin-dot busy';
-            var badgeText = s.price + ' • ' + s.avail + '/' + s.total;
+                    var icon = L.divIcon({
+                        className: 'station-marker-div',
+                        html: pinHtml,
+                        iconSize: [120, 36],
+                        iconAnchor: [60, 18]
+                    });
 
-            var pinHtml = '<div class="station-pin" id="pin_' + s.id + '">' +
-                '<div class="' + pillClass + '">' +
-                    '<span class="' + dotClass + '"></span>' +
-                    '<span>' + badgeText + '</span>' +
-                '</div>' +
-            '</div>';
+                    var marker = L.marker([s.lat, s.lng], { icon: icon }).addTo(map);
+                    marker.on('click', function() {
+                        if (window.AndroidBridge) {
+                            window.AndroidBridge.onStationClicked(s.id);
+                        }
+                    });
+                });
 
-            var icon = L.divIcon({
-                className: 'station-marker-div',
-                html: pinHtml,
-                iconSize: [120, 36],
-                iconAnchor: [60, 18]
-            });
-
-            var marker = L.marker([s.lat, s.lng], { icon: icon }).addTo(map);
-            marker.on('click', function() {
-                if (window.AndroidBridge) {
-                    window.AndroidBridge.onStationClicked(s.id);
-                }
-                highlightPin(s.id);
-            });
-            markers[s.id] = { marker: marker, lat: s.lat, lng: s.lng };
-        });
-
-        function highlightPin(id) {
-            document.querySelectorAll('.pin-pill').forEach(function(el) {
-                el.classList.remove('selected');
-            });
-            var active = document.getElementById('pin_' + id);
-            if (active) {
-                var pill = active.querySelector('.pin-pill');
-                if (pill) pill.classList.add('selected');
+                window.focusStation = function(lat, lng, id) {
+                    map.flyTo([lat, lng], 15, { animate: true, duration: 0.8 });
+                };
+            } catch(e) {
+                renderFallbackCanvas();
             }
+        } else {
+            renderFallbackCanvas();
         }
 
-        window.focusStation = function(lat, lng, id) {
-            map.flyTo([lat, lng], 15, { animate: true, duration: 0.8 });
-            highlightPin(id);
-        };
+        function renderFallbackCanvas() {
+            document.getElementById('map').style.display = 'none';
+            var canvas = document.getElementById('fallback-canvas');
+            canvas.style.display = 'block';
+            var ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
 
-        window.focusUser = function(lat, lng) {
-            map.flyTo([lat, lng], 14, { animate: true, duration: 0.8 });
-        };
+            ctx.fillStyle = '#f0f4f8';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid & rings
+            ctx.strokeStyle = '#d6dfe6';
+            ctx.lineWidth = 1.5;
+            var cx = canvas.width / 2;
+            var cy = canvas.height / 2;
+            [60, 140, 220].forEach(function(r) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+                ctx.stroke();
+            });
+
+            // User pin
+            ctx.fillStyle = '#2563eb';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 8, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Station pins
+            stations.forEach(function(s, idx) {
+                var dx = (s.lng - userLng) * 1800;
+                var dy = -(s.lat - userLat) * 1800;
+                var sx = cx + dx;
+                var sy = cy + dy;
+
+                ctx.fillStyle = s.status === 'AVAILABLE' ? '#087F5B' : '#F59E0B';
+                ctx.beginPath();
+                ctx.roundRect(sx - 45, sy - 15, 90, 30, 15);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(s.price + ' • ' + s.avail + '/' + s.total, sx, sy + 4);
+            });
+        }
     </script>
 </body>
 </html>
