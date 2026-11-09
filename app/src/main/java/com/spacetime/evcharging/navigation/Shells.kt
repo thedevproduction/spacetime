@@ -57,9 +57,9 @@ fun CustomerShell(
                 )
                 NavigationBarItem(
                     selected = selectedTab == 4,
-                    onClick = { rootNavController.navigate(VehiclesRoute) },
-                    icon = { Icon(if (selectedTab == 4) Icons.Default.DirectionsCar else Icons.Outlined.DirectionsCar, contentDescription = "Garage") },
-                    label = { Text("Garage") },
+                    onClick = { selectedTab = 4 },
+                    icon = { Icon(if (selectedTab == 4) Icons.Default.Person else Icons.Outlined.Person, contentDescription = "Profile") },
+                    label = { Text("Profile") },
                     colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
                 )
             }
@@ -74,7 +74,7 @@ fun CustomerShell(
                     onNavigateToStation = { stationId ->
                         rootNavController.navigate(StationDetailsRoute(stationId))
                     },
-                    onNavigateToProfile = { rootNavController.navigate(RoleSelectionRoute) }
+                    onNavigateToProfile = { selectedTab = 4 }
                 )
                 1 -> ExploreMapScreen(
                     onNavigateToStationDetails = { stationId ->
@@ -88,6 +88,15 @@ fun CustomerShell(
                 3 -> com.spacetime.evcharging.feature.wallet.WalletDashboardScreen(
                     onNavigateToAddMoney = { rootNavController.navigate(AddMoneyRoute) },
                     onNavigateToTransactions = { rootNavController.navigate(WalletTransactionsRoute) }
+                )
+                4 -> com.spacetime.evcharging.feature.customer.profile.CustomerProfileScreen(
+                    onNavigateToVehicles = { rootNavController.navigate(VehiclesRoute) },
+                    onNavigateToWallet = { selectedTab = 3 },
+                    onNavigateToSavedStations = { rootNavController.navigate(SavedStationsRoute) },
+                    onNavigateToNotifications = { rootNavController.navigate(NotificationsRoute) },
+                    onNavigateToHelp = { rootNavController.navigate(HelpSupportRoute) },
+                    onNavigateToRoleSelection = { rootNavController.navigate(RoleSelectionRoute) },
+                    onLogout = { rootNavController.navigate(SplashRoute) { popUpTo(0) { inclusive = true } } }
                 )
             }
         }
