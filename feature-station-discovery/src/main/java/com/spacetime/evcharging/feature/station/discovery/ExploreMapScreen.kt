@@ -12,7 +12,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -21,7 +20,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,7 +36,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.spacetime.evcharging.core.common.model.ChargerStatus
 import com.spacetime.evcharging.core.designsystem.component.*
 import com.spacetime.evcharging.core.designsystem.theme.*
 import com.spacetime.evcharging.data.model.Station
@@ -50,6 +48,7 @@ fun ExploreMapScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
     @SuppressLint("MissingPermission")
@@ -63,7 +62,6 @@ fun ExploreMapScreen(
                 if (loc != null) {
                     viewModel.updateUserLocation(loc.latitude, loc.longitude)
                 } else {
-                    // In emulators or fresh boots, lastLocation can be null: request fresh single location
                     val req = CurrentLocationRequest.Builder()
                         .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
                         .build()
@@ -71,13 +69,16 @@ fun ExploreMapScreen(
                         if (freshLoc != null) {
                             viewModel.updateUserLocation(freshLoc.latitude, freshLoc.longitude)
                         } else {
+                            viewModel.triggerRecenter()
                             viewModel.loadStations(uiState.userLatitude, uiState.userLongitude)
                         }
                     }.addOnFailureListener {
+                        viewModel.triggerRecenter()
                         viewModel.loadStations(uiState.userLatitude, uiState.userLongitude)
                     }
                 }
             }.addOnFailureListener {
+                viewModel.triggerRecenter()
                 viewModel.loadStations(uiState.userLatitude, uiState.userLongitude)
             }
         } catch (e: SecurityException) {
@@ -94,12 +95,10 @@ fun ExploreMapScreen(
             fetchUserLocation()
             Toast.makeText(context, "Location permission granted", Toast.LENGTH_SHORT).show()
         } else {
-            // Permission denied: gracefully load default pilot stations (Jabalpur/Bhopal)
             viewModel.loadStations(uiState.userLatitude, uiState.userLongitude)
         }
     }
 
-    // Auto-check on launch
     LaunchedEffect(Unit) {
         val fine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val coarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -121,28 +120,41 @@ fun ExploreMapScreen(
                 .padding(padding)
         ) {
             if (uiState.isMapMode) {
-                // Multi-engine map support with Native Vector Map as default guaranteed engine
                 when (uiState.mapEngine) {
-                    MapEngine.NATIVE_VECTOR -> {
-                        NativeMapView(
+                    MapEngine.OSM_STREET -> {
+                        OsmRealMapView(
                             stations = uiState.filteredStations,
                             selectedStation = uiState.selectedStation,
                             userLatitude = uiState.userLatitude,
                             userLongitude = uiState.userLongitude,
+                            recenterTrigger = uiState.recenterTrigger,
+                            useVoyagerStyle = false,
                             onSelectStation = viewModel::selectStation
                         )
                     }
-                    MapEngine.INTERACTIVE_OSM -> {
-                        RealInteractiveMapView(
+                    MapEngine.OSM_CLEAN -> {
+                        OsmRealMapView(
                             stations = uiState.filteredStations,
                             selectedStation = uiState.selectedStation,
                             userLatitude = uiState.userLatitude,
                             userLongitude = uiState.userLongitude,
+                            recenterTrigger = uiState.recenterTrigger,
+                            useVoyagerStyle = true,
                             onSelectStation = viewModel::selectStation
                         )
                     }
                     MapEngine.GOOGLE_MAPS -> {
                         GoogleMapsView(
+                            stations = uiState.filteredStations,
+                            selectedStation = uiState.selectedStation,
+                            userLatitude = uiState.userLatitude,
+                            userLongitude = uiState.userLongitude,
+                            onSelectStation = viewModel::selectStation,
+                            onFallbackToStreetMap = { viewModel.setMapEngine(MapEngine.OSM_STREET) }
+                        )
+                    }
+                    MapEngine.OFFLINE_VECTOR -> {
+                        NativeMapView(
                             stations = uiState.filteredStations,
                             selectedStation = uiState.selectedStation,
                             userLatitude = uiState.userLatitude,
@@ -206,7 +218,7 @@ fun ExploreMapScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     QuickFilterChip(
-                        label = "All (${uiState.stations.size})",
+                        label = "All (${uiState.filteredStations.size})",
                         isSelected = uiState.activeQuickFilter == "ALL",
                         onClick = { viewModel.setQuickFilter("ALL") }
                     )
@@ -231,6 +243,80 @@ fun ExploreMapScreen(
                         onClick = { viewModel.setQuickFilter("CHEAP") }
                     )
                 }
+
+                // Live Search Suggestions Dropdown on Map
+                if (uiState.isMapMode && uiState.searchQuery.isNotBlank() && uiState.selectedStation == null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardBackground),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                            if (uiState.filteredStations.isEmpty()) {
+                                Text(
+                                    text = "No hubs matching \"${uiState.searchQuery}\"",
+                                    fontSize = 13.sp,
+                                    color = SecondaryText,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            } else {
+                                uiState.filteredStations.take(4).forEachIndexed { index, station ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                focusManager.clearFocus()
+                                                viewModel.selectStation(station)
+                                            }
+                                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.EvStation,
+                                                contentDescription = null,
+                                                tint = Primary,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Column {
+                                                Text(
+                                                    text = station.name,
+                                                    fontSize = 14.sp,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    color = MainText,
+                                                    maxLines = 1
+                                                )
+                                                Text(
+                                                    text = station.address,
+                                                    fontSize = 11.sp,
+                                                    color = SecondaryText,
+                                                    maxLines = 1
+                                                )
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "${station.distanceKm} km",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Primary
+                                        )
+                                    }
+                                    if (index < uiState.filteredStations.take(4).lastIndex) {
+                                        HorizontalDivider(color = Border, thickness = 0.5.dp)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             // Floating Controls: Recenter, Toggle Map Engine, Toggle View
@@ -241,9 +327,10 @@ fun ExploreMapScreen(
                         bottom = if (uiState.selectedStation != null && uiState.isMapMode) 250.dp else 24.dp,
                         end = 16.dp
                     ),
+                horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // Map Engine Switcher Button (Vector Map / OSM / Google Maps)
+                // Map Engine Switcher Button
                 if (uiState.isMapMode) {
                     Surface(
                         shape = RoundedCornerShape(16.dp),
@@ -257,7 +344,7 @@ fun ExploreMapScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Layers,
-                                contentDescription = "Switch Map Engine",
+                                contentDescription = "Switch Map Layer",
                                 tint = Primary,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -276,8 +363,10 @@ fun ExploreMapScreen(
                 FloatingActionButton(
                     onClick = {
                         val fine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        if (fine) {
+                        val coarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        if (fine || coarse) {
                             fetchUserLocation()
+                            viewModel.triggerRecenter()
                             Toast.makeText(context, "Centering on your location...", Toast.LENGTH_SHORT).show()
                         } else {
                             locationPermissionLauncher.launch(
@@ -387,7 +476,6 @@ fun SelectedStationPreviewCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
-            // Header: Name & Close button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -432,7 +520,6 @@ fun SelectedStationPreviewCard(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Status metrics row: Availability, Tariff, Rating
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -483,7 +570,6 @@ fun SelectedStationPreviewCard(
                 }
             }
 
-            // Amenities Tags
             if (station.amenities.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
@@ -508,7 +594,6 @@ fun SelectedStationPreviewCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Action Buttons: Directions & Charge Now
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -560,7 +645,6 @@ fun StationListScreenContent(
             .fillMaxSize()
             .padding(top = 110.dp)
     ) {
-        // Sort filter chips row
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -585,7 +669,7 @@ fun StationListScreenContent(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                .padding(32.dp),
+                    .padding(32.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -654,7 +738,6 @@ fun StationFilterBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Switch options
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,

@@ -14,6 +14,7 @@ coil = "3.0.4"
 playServicesMaps = "19.0.0"
 playServicesLocation = "21.3.0"
 mapsCompose = "6.2.1"
+osmdroid = "6.1.20"
 accompanist = "0.36.0"
 coreKtx = "1.15.0"
 lifecycleRuntimeKtx = "2.8.7"
@@ -91,6 +92,7 @@ coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", versi
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "mapsCompose" }
+osmdroid-android = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
 
 # Camera & QR
 camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraX" }

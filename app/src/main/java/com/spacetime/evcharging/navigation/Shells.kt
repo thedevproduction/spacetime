@@ -74,16 +74,26 @@ fun CustomerShell(
                     onNavigateToStation = { stationId ->
                         rootNavController.navigate(StationDetailsRoute(stationId))
                     },
-                    onNavigateToProfile = { selectedTab = 4 }
+                    onNavigateToProfile = { selectedTab = 4 },
+                    onNavigateToSavedStations = { rootNavController.navigate(SavedStationsRoute) },
+                    onNavigateToNotifications = { rootNavController.navigate(NotificationsRoute) },
+                    onNavigateToActiveSession = { sessionId ->
+                        rootNavController.navigate(ActiveChargingRoute(sessionId))
+                    }
                 )
                 1 -> ExploreMapScreen(
                     onNavigateToStationDetails = { stationId ->
                         rootNavController.navigate(StationDetailsRoute(stationId))
                     }
                 )
-                2 -> com.spacetime.evcharging.core.designsystem.component.EmptyState(
-                    title = "My Charging Sessions",
-                    message = "Your active and historical EV charging sessions will appear here."
+                2 -> com.spacetime.evcharging.feature.charging.MyChargingSessionsScreen(
+                    onOpenActiveSession = { sessionId ->
+                        rootNavController.navigate(ActiveChargingRoute(sessionId))
+                    },
+                    onOpenSessionSummary = { sessionId ->
+                        rootNavController.navigate(ChargingSummaryRoute(sessionId))
+                    },
+                    onScanQrToCharge = { rootNavController.navigate(QrScannerRoute) }
                 )
                 3 -> com.spacetime.evcharging.feature.wallet.WalletDashboardScreen(
                     onNavigateToAddMoney = { rootNavController.navigate(AddMoneyRoute) },

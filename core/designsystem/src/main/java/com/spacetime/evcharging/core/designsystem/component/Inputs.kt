@@ -7,6 +7,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -198,23 +199,37 @@ fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "Where do you want to charge?"
+    placeholder: String = "Where do you want to charge?",
+    enabled: Boolean = true
 ) {
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
+        enabled = enabled,
         placeholder = { Text(placeholder, color = SecondaryText, fontSize = 14.sp) },
         leadingIcon = {
             Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = SecondaryText)
         },
+        trailingIcon = if (query.isNotEmpty() && enabled) {
+            {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Clear search", tint = SecondaryText)
+                }
+            }
+        } else null,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = CardBackground,
             unfocusedContainerColor = CardBackground,
+            disabledContainerColor = CardBackground,
             focusedBorderColor = Primary,
-            unfocusedBorderColor = Border
+            unfocusedBorderColor = Border,
+            disabledBorderColor = Border,
+            disabledTextColor = MainText,
+            disabledPlaceholderColor = SecondaryText,
+            disabledLeadingIconColor = SecondaryText
         )
     )
 }

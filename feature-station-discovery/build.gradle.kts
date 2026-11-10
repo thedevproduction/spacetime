@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.maps.compose)
+    implementation(libs.osmdroid.android)
     implementation(project(":core:designsystem"))
     implementation(project(":core:common"))
     implementation(project(":core:navigation"))

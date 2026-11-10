@@ -187,18 +187,111 @@ class FakeStationRepository @Inject constructor() : StationRepository {
         return Math.round(r * c * 10.0) / 10.0
     }
 
+    private var dynamicLocalStations: List<Station> = emptyList()
+
+    private fun buildLocalStationsAround(lat: Double, lng: Double): List<Station> {
+        val cosLat = Math.cos(Math.toRadians(lat)).coerceAtLeast(0.2)
+        fun offsetLat(kmNorth: Double) = lat + (kmNorth / 111.0)
+        fun offsetLng(kmEast: Double) = lng + (kmEast / (111.0 * cosLat))
+
+        return listOf(
+            Station(
+                id = "st_local_1",
+                name = "Spacetime Central Superhub",
+                address = "Main Boulevard • Near Your Location",
+                latitude = offsetLat(0.7),
+                longitude = offsetLng(0.6),
+                distanceKm = calculateDistanceKm(lat, lng, offsetLat(0.7), offsetLng(0.6)),
+                isOpen = true,
+                availability = ChargerStatus.AVAILABLE,
+                availableConnectors = 4,
+                totalConnectors = 6,
+                minimumTariff = Money(1400),
+                rating = 4.8f,
+                amenities = listOf("Cafe", "WiFi", "24/7 Security")
+            ),
+            Station(
+                id = "st_local_2",
+                name = "Spacetime Metro DC Fast Plaza",
+                address = "Commercial District • Sector Center",
+                latitude = offsetLat(-1.1),
+                longitude = offsetLng(-0.9),
+                distanceKm = calculateDistanceKm(lat, lng, offsetLat(-1.1), offsetLng(-0.9)),
+                isOpen = true,
+                availability = ChargerStatus.AVAILABLE,
+                availableConnectors = 3,
+                totalConnectors = 4,
+                minimumTariff = Money(1500),
+                rating = 4.7f,
+                amenities = listOf("Restroom", "Food Court", "Covered Parking")
+            ),
+            Station(
+                id = "st_local_3",
+                name = "GreenGrid Expressway Hub",
+                address = "Bypass Corridor • Fast Charge Zone",
+                latitude = offsetLat(-1.8),
+                longitude = offsetLng(1.6),
+                distanceKm = calculateDistanceKm(lat, lng, offsetLat(-1.8), offsetLng(1.6)),
+                isOpen = true,
+                availability = ChargerStatus.CHARGING,
+                availableConnectors = 1,
+                totalConnectors = 6,
+                minimumTariff = Money(1350),
+                rating = 4.6f,
+                amenities = listOf("Restroom", "Waiting Lounge", "EV Spares")
+            ),
+            Station(
+                id = "st_local_4",
+                name = "Spacetime Tech Park Station",
+                address = "Innovation Avenue • Gate 2",
+                latitude = offsetLat(2.1),
+                longitude = offsetLng(-1.5),
+                distanceKm = calculateDistanceKm(lat, lng, offsetLat(2.1), offsetLng(-1.5)),
+                isOpen = true,
+                availability = ChargerStatus.AVAILABLE,
+                availableConnectors = 5,
+                totalConnectors = 8,
+                minimumTariff = Money(1550),
+                rating = 4.9f,
+                amenities = listOf("Workspace", "Cafe", "Valet")
+            ),
+            Station(
+                id = "st_local_5",
+                name = "City Mall Quick Charger",
+                address = "Basement P1 • East Entrance",
+                latitude = offsetLat(0.3),
+                longitude = offsetLng(-2.4),
+                distanceKm = calculateDistanceKm(lat, lng, offsetLat(0.3), offsetLng(-2.4)),
+                isOpen = true,
+                availability = ChargerStatus.AVAILABLE,
+                availableConnectors = 2,
+                totalConnectors = 4,
+                minimumTariff = Money(1450),
+                rating = 4.5f,
+                amenities = listOf("Shopping", "Restroom", "Multiplex")
+            )
+        )
+    }
+
     override suspend fun getNearbyStations(lat: Double, lng: Double, radiusKm: Double): AppResult<List<Station>> {
-        delay(300)
-        val updated = stations.map { station ->
-            val d = calculateDistanceKm(lat, lng, station.latitude, station.longitude)
-            station.copy(distanceKm = d)
-        }.sortedBy { it.distanceKm }
-        return AppResult.Success(updated)
+        delay(250)
+        val pilotWithDistances = stations.map { station ->
+            station.copy(distanceKm = calculateDistanceKm(lat, lng, station.latitude, station.longitude))
+        }
+        val minPilotDist = pilotWithDistances.minOfOrNull { it.distanceKm } ?: Double.MAX_VALUE
+        dynamicLocalStations = if (minPilotDist > 25.0) {
+            buildLocalStationsAround(lat, lng)
+        } else {
+            emptyList()
+        }
+        val combined = (dynamicLocalStations + pilotWithDistances).sortedBy { it.distanceKm }
+        return AppResult.Success(combined)
     }
 
     override suspend fun getStationDetails(stationId: String): AppResult<Station> {
-        delay(300)
-        val s = stations.find { it.id == stationId } ?: stations.first()
+        delay(200)
+        val all = dynamicLocalStations + stations
+        val s = all.find { it.id == stationId } ?: all.first()
         return AppResult.Success(s)
     }
 
@@ -232,8 +325,10 @@ class FakeStationRepository @Inject constructor() : StationRepository {
     }
 
     override suspend fun searchStations(query: String): AppResult<List<Station>> {
-        delay(300)
-        val filtered = stations.filter { it.name.contains(query, ignoreCase = true) || it.address.contains(query, ignoreCase = true) }
+        delay(200)
+        val filtered = (dynamicLocalStations + stations).filter {
+            it.name.contains(query, ignoreCase = true) || it.address.contains(query, ignoreCase = true)
+        }
         return AppResult.Success(filtered)
     }
 }
@@ -243,6 +338,65 @@ class FakeChargingRepository @Inject constructor() : ChargingRepository {
 
     private var activeSession: ActiveChargingSession? = null
     private var lastSummary: SessionSummary? = null
+    private val sessionHistory = mutableListOf(
+        SessionSummary(
+            sessionId = "sess_hist_101",
+            stationName = "Highway EV Superhub Jabalpur",
+            chargerId = "CHG-01-DC",
+            connectorId = 1,
+            totalEnergyKwh = 28.4,
+            durationFormatted = "38m 15s",
+            startTime = "Yesterday, 06:12 PM",
+            endTime = "Yesterday, 06:50 PM",
+            tariffRate = Money(1400),
+            sessionFee = Money(0),
+            parkingFee = Money(0),
+            taxAmount = Money(7156),
+            discountAmount = Money(2000),
+            finalAmount = Money(37760),
+            paymentMethod = "Spacetime Wallet",
+            paymentStatus = PaymentStatus.CAPTURED,
+            invoiceUrl = "https://example.com/invoices/inv_101.pdf"
+        ),
+        SessionSummary(
+            sessionId = "sess_hist_102",
+            stationName = "Civic Centre Fast Charger",
+            chargerId = "CHG-02-DC",
+            connectorId = 2,
+            totalEnergyKwh = 16.2,
+            durationFormatted = "24m 05s",
+            startTime = "06 Nov, 11:20 AM",
+            endTime = "06 Nov, 11:44 AM",
+            tariffRate = Money(1500),
+            sessionFee = Money(0),
+            parkingFee = Money(0),
+            taxAmount = Money(4374),
+            discountAmount = Money(0),
+            finalAmount = Money(24300),
+            paymentMethod = "UPI Autopay",
+            paymentStatus = PaymentStatus.CAPTURED,
+            invoiceUrl = "https://example.com/invoices/inv_102.pdf"
+        ),
+        SessionSummary(
+            sessionId = "sess_hist_103",
+            stationName = "DB City Mall EV Station Bhopal",
+            chargerId = "CHG-04-DC",
+            connectorId = 1,
+            totalEnergyKwh = 34.0,
+            durationFormatted = "45m 10s",
+            startTime = "02 Nov, 03:40 PM",
+            endTime = "02 Nov, 04:25 PM",
+            tariffRate = Money(1600),
+            sessionFee = Money(0),
+            parkingFee = Money(0),
+            taxAmount = Money(9792),
+            discountAmount = Money(5000),
+            finalAmount = Money(49400),
+            paymentMethod = "Spacetime Wallet",
+            paymentStatus = PaymentStatus.CAPTURED,
+            invoiceUrl = "https://example.com/invoices/inv_103.pdf"
+        )
+    )
 
     override suspend fun resolveQr(qrPayload: String): AppResult<ChargingQuote> {
         delay(500)
@@ -338,32 +492,20 @@ class FakeChargingRepository @Inject constructor() : ChargingRepository {
             invoiceUrl = "https://example.com/invoices/inv_123.pdf"
         )
         lastSummary = summary
+        sessionHistory.add(0, summary)
         activeSession = null
         return AppResult.Success(summary)
     }
 
     override suspend fun getSessionSummary(sessionId: String): AppResult<SessionSummary> {
-        delay(300)
-        val summary = lastSummary ?: SessionSummary(
-            sessionId = sessionId,
-            stationName = "Highway EV Superhub Jabalpur",
-            chargerId = "CHG-01-DC",
-            connectorId = 1,
-            totalEnergyKwh = 22.45,
-            durationFormatted = "32m 40s",
-            startTime = "10:30 AM",
-            endTime = "11:02 AM",
-            tariffRate = Money(1400),
-            sessionFee = Money(0),
-            parkingFee = Money(0),
-            taxAmount = Money(5657),
-            discountAmount = Money(0),
-            finalAmount = Money(31430),
-            paymentMethod = "Spacetime Wallet",
-            paymentStatus = PaymentStatus.CAPTURED,
-            invoiceUrl = "https://example.com/invoices/inv_123.pdf"
-        )
-        return AppResult.Success(summary)
+        delay(250)
+        val found = sessionHistory.find { it.sessionId == sessionId } ?: lastSummary ?: sessionHistory.first()
+        return AppResult.Success(found)
+    }
+
+    override suspend fun getSessionHistory(): AppResult<List<SessionSummary>> {
+        delay(250)
+        return AppResult.Success(sessionHistory.toList())
     }
 }
 

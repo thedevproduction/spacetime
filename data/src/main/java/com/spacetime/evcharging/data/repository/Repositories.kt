@@ -30,6 +30,7 @@ interface ChargingRepository {
     suspend fun getActiveSession(): AppResult<ActiveChargingSession?>
     suspend fun stopSession(sessionId: String): AppResult<SessionSummary>
     suspend fun getSessionSummary(sessionId: String): AppResult<SessionSummary>
+    suspend fun getSessionHistory(): AppResult<List<SessionSummary>>
 }
 
 interface WalletRepository {

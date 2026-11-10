@@ -259,7 +259,7 @@ fun NativeMapView(
                         }
                         .clickable { onSelectStation(station) }
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterVertically) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Surface(
                             shape = RoundedCornerShape(20.dp),
                             color = if (isSelected) Secondary else CardBackground,
@@ -365,3 +365,4 @@ fun NativeMapView(
         }
     }
 }
+

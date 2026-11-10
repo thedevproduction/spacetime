@@ -31,6 +31,9 @@ fun CustomerHomeScreen(
     onNavigateToExplore: () -> Unit,
     onNavigateToStation: (String) -> Unit,
     onNavigateToProfile: () -> Unit,
+    onNavigateToSavedStations: () -> Unit = onNavigateToExplore,
+    onNavigateToNotifications: () -> Unit = {},
+    onNavigateToActiveSession: (String) -> Unit = {},
     viewModel: CustomerHomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -39,7 +42,7 @@ fun CustomerHomeScreen(
         topBar = {
             SpacetimeTopBar(
                 title = "Spacetime Energy",
-                onNotificationClick = {},
+                onNotificationClick = onNavigateToNotifications,
                 notificationCount = 2,
                 onProfileClick = onNavigateToProfile
             )
@@ -83,11 +86,12 @@ fun CustomerHomeScreen(
                 )
             }
 
-            // Search bar
+            // Search bar (navigates directly to interactive Explore map)
             item {
                 SearchBar(
                     query = uiState.searchQuery,
                     onQueryChange = viewModel::onSearchQueryChanged,
+                    enabled = false,
                     modifier = Modifier.clickable { onNavigateToExplore() }
                 )
             }
@@ -116,7 +120,7 @@ fun CustomerHomeScreen(
                     QuickActionButton(
                         icon = Icons.Default.Bookmark,
                         label = "Saved",
-                        onClick = onNavigateToExplore
+                        onClick = onNavigateToSavedStations
                     )
                 }
             }
@@ -125,7 +129,9 @@ fun CustomerHomeScreen(
             uiState.activeSession?.let { session ->
                 item {
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigateToActiveSession(session.sessionId) },
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Primary.copy(alpha = 0.1f)),
                         border = androidx.compose.foundation.BorderStroke(1.5.dp, Primary)

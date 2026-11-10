@@ -102,4 +102,17 @@ class StationDiscoveryViewModelTest {
 
         coVerify { stationRepository.getNearbyStations(23.25, 77.41, any()) }
     }
+
+    @Test
+    fun `default mapEngine is OSM_STREET and cycles cleanly`() {
+        assertEquals(MapEngine.OSM_STREET, viewModel.uiState.value.mapEngine)
+        viewModel.cycleMapEngine()
+        assertEquals(MapEngine.OSM_CLEAN, viewModel.uiState.value.mapEngine)
+        viewModel.cycleMapEngine()
+        assertEquals(MapEngine.GOOGLE_MAPS, viewModel.uiState.value.mapEngine)
+        viewModel.cycleMapEngine()
+        assertEquals(MapEngine.OFFLINE_VECTOR, viewModel.uiState.value.mapEngine)
+        viewModel.cycleMapEngine()
+        assertEquals(MapEngine.OSM_STREET, viewModel.uiState.value.mapEngine)
+    }
 }

@@ -13,6 +13,9 @@ import com.spacetime.evcharging.feature.charging.ChargingStartConfirmationScreen
 import com.spacetime.evcharging.feature.charging.ChargingSummaryScreen
 import com.spacetime.evcharging.feature.wallet.AddMoneyScreen
 import com.spacetime.evcharging.feature.wallet.WalletTransactionsScreen
+import com.spacetime.evcharging.feature.customer.profile.HelpSupportScreen
+import com.spacetime.evcharging.feature.customer.profile.NotificationsScreen
+import com.spacetime.evcharging.feature.customer.profile.SavedStationsScreen
 import com.spacetime.evcharging.feature.qr.scanner.QrScannerScreen
 import com.spacetime.evcharging.feature.station.details.ChargerSelectionScreen
 import com.spacetime.evcharging.feature.station.details.StationDetailsScreen
@@ -152,6 +155,28 @@ fun SpacetimeNavHost() {
                         popUpTo<CustomerShellRoute> { inclusive = true }
                     }
                 }
+            )
+        }
+
+        // Profile sub-screens
+        composable<SavedStationsRoute> {
+            SavedStationsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToStationDetails = { stationId ->
+                    navController.navigate(StationDetailsRoute(stationId))
+                }
+            )
+        }
+
+        composable<NotificationsRoute> {
+            NotificationsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<HelpSupportRoute> {
+            HelpSupportScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 

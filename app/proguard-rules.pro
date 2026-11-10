@@ -11,5 +11,9 @@
 
 # Kotlinx Serialization
 -keepclassmembers class kotlinx.serialization.json.** { *** Companion; }
--keepclasses class com.spacetime.evcharging.** { *; }
+-keep class com.spacetime.evcharging.** { *; }
 -keep,includedescriptorclasses class com.spacetime.evcharging.**$$serializer { *; }
+
+# osmdroid Maps
+-dontwarn org.osmdroid.**
+-keep class org.osmdroid.** { *; }

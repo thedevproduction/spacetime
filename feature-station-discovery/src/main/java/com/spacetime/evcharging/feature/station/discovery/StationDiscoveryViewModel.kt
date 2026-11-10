@@ -19,9 +19,10 @@ enum class StationSortOption(val displayName: String) {
 }
 
 enum class MapEngine(val displayName: String) {
-    NATIVE_VECTOR("Vector Map"),
-    INTERACTIVE_OSM("OpenStreetMap"),
-    GOOGLE_MAPS("Google Maps")
+    OSM_STREET("Street Map"),
+    OSM_CLEAN("Clean Map"),
+    GOOGLE_MAPS("Google Maps"),
+    OFFLINE_VECTOR("Offline Map")
 }
 
 data class StationFilterState(
@@ -39,6 +40,7 @@ data class StationDiscoveryUiState(
     val selectedStation: Station? = null,
     val userLatitude: Double = 23.1815,
     val userLongitude: Double = 79.9864,
+    val recenterTrigger: Int = 0,
     val isMapMode: Boolean = true,
     val isLoading: Boolean = false,
     val error: String? = null,
@@ -46,7 +48,7 @@ data class StationDiscoveryUiState(
     val sortOption: StationSortOption = StationSortOption.NEAREST,
     val filters: StationFilterState = StationFilterState(),
     val activeQuickFilter: String = "ALL",
-    val mapEngine: MapEngine = MapEngine.NATIVE_VECTOR,
+    val mapEngine: MapEngine = MapEngine.OSM_STREET,
     val isFilterSheetVisible: Boolean = false
 )
 
@@ -68,10 +70,11 @@ class StationDiscoveryViewModel @Inject constructor(
             when (val res = stationRepository.getNearbyStations(lat, lng)) {
                 is AppResult.Success -> {
                     _uiState.update {
+                        val filtered = applyFiltersAndSort(res.data, it.searchQuery, it.filters, it.sortOption, it.activeQuickFilter)
                         it.copy(
                             isLoading = false,
                             stations = res.data,
-                            filteredStations = applyFiltersAndSort(res.data, it.searchQuery, it.filters, it.sortOption, it.activeQuickFilter)
+                            filteredStations = filtered
                         )
                     }
                 }
@@ -83,7 +86,12 @@ class StationDiscoveryViewModel @Inject constructor(
     }
 
     fun updateUserLocation(lat: Double, lng: Double) {
+        _uiState.update { it.copy(recenterTrigger = it.recenterTrigger + 1) }
         loadStations(lat, lng)
+    }
+
+    fun triggerRecenter() {
+        _uiState.update { it.copy(recenterTrigger = it.recenterTrigger + 1) }
     }
 
     fun toggleViewMode() {
@@ -93,9 +101,10 @@ class StationDiscoveryViewModel @Inject constructor(
     fun cycleMapEngine() {
         _uiState.update {
             val next = when (it.mapEngine) {
-                MapEngine.NATIVE_VECTOR -> MapEngine.INTERACTIVE_OSM
-                MapEngine.INTERACTIVE_OSM -> MapEngine.GOOGLE_MAPS
-                MapEngine.GOOGLE_MAPS -> MapEngine.NATIVE_VECTOR
+                MapEngine.OSM_STREET -> MapEngine.OSM_CLEAN
+                MapEngine.OSM_CLEAN -> MapEngine.GOOGLE_MAPS
+                MapEngine.GOOGLE_MAPS -> MapEngine.OFFLINE_VECTOR
+                MapEngine.OFFLINE_VECTOR -> MapEngine.OSM_STREET
             }
             it.copy(mapEngine = next)
         }
@@ -180,6 +189,9 @@ class StationDiscoveryViewModel @Inject constructor(
             result = result.filter {
                 it.name.contains(query, ignoreCase = true) || it.address.contains(query, ignoreCase = true)
             }
+        } else {
+            // Only apply radius cutoff when not actively searching across cities by name
+            result = result.filter { it.distanceKm <= filters.maxDistanceKm }
         }
 
         if (filters.availableNowOnly || quickFilter == "AVAILABLE_NOW") {
@@ -193,8 +205,6 @@ class StationDiscoveryViewModel @Inject constructor(
         if (quickFilter == "FAST_DC") {
             result = result.filter { it.name.contains("Superhub", ignoreCase = true) || it.name.contains("Fast", ignoreCase = true) || it.totalConnectors >= 4 }
         }
-
-        result = result.filter { it.distanceKm <= filters.maxDistanceKm }
 
         return when (sort) {
             StationSortOption.NEAREST -> result.sortedBy { it.distanceKm }
