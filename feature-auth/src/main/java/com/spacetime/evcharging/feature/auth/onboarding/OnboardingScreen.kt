@@ -1,8 +1,15 @@
 package com.spacetime.evcharging.feature.auth.onboarding
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.LocationCity
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -63,6 +70,7 @@ fun OnboardingScreen(
                 value = uiState.fullName,
                 onValueChange = viewModel::onNameChanged,
                 label = "Full Name *",
+                leadingIcon = Icons.Default.Person,
                 error = uiState.nameError
             )
 
@@ -71,7 +79,8 @@ fun OnboardingScreen(
             OutlinedInput(
                 value = uiState.email,
                 onValueChange = viewModel::onEmailChanged,
-                label = "Email Address (Optional)"
+                label = "Email Address (Optional)",
+                leadingIcon = Icons.Default.Email
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -79,26 +88,36 @@ fun OnboardingScreen(
             OutlinedInput(
                 value = uiState.city,
                 onValueChange = viewModel::onCityChanged,
-                label = "City (e.g. Jabalpur, Bhopal)"
+                label = "City (e.g. Jabalpur, Bhopal)",
+                leadingIcon = Icons.Default.LocationCity
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+            Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = CardBackground,
+                border = BorderStroke(1.dp, if (uiState.termsAccepted) Primary else Border),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { viewModel.onTermsAcceptedChanged(!uiState.termsAccepted) }
             ) {
-                Checkbox(
-                    checked = uiState.termsAccepted,
-                    onCheckedChange = viewModel::onTermsAcceptedChanged,
-                    colors = CheckboxDefaults.colors(checkedColor = Primary)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "I accept the Terms of Service & Privacy Policy",
-                    fontSize = 13.sp,
-                    color = MainText
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)
+                ) {
+                    Checkbox(
+                        checked = uiState.termsAccepted,
+                        onCheckedChange = viewModel::onTermsAcceptedChanged,
+                        colors = CheckboxDefaults.colors(checkedColor = Primary)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "I accept the Terms of Service & Privacy Policy",
+                        fontSize = 13.sp,
+                        color = MainText
+                    )
+                }
             }
 
             if (uiState.error != null) {
@@ -119,7 +138,7 @@ fun OnboardingScreen(
                 isLoading = uiState.isLoading
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.navigationBarsPadding().height(24.dp))
         }
     }
 }

@@ -25,6 +25,8 @@ fun ProviderDashboardScreen(
         topBar = {
             SpacetimeTopBar(
                 title = "Service Provider Hub",
+                subtitle = "Installations & AMC Operations",
+                showBrandBadge = true,
                 onProfileClick = onNavigateToProfile,
                 onNotificationClick = {},
                 notificationCount = 3

@@ -1,12 +1,19 @@
 package com.spacetime.evcharging.feature.site.dashboard
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,6 +32,8 @@ fun SiteAdminDashboardScreen(
         topBar = {
             SpacetimeTopBar(
                 title = "Station Owner Portal",
+                subtitle = "Live Site Operations",
+                showBrandBadge = true,
                 onProfileClick = onNavigateToProfile,
                 onNotificationClick = {},
                 notificationCount = 1
@@ -117,32 +126,48 @@ fun SiteAdminDashboardScreen(
 
             item {
                 Card(
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(18.dp),
                     colors = CardDefaults.cardColors(containerColor = CardBackground),
+                    border = BorderStroke(1.dp, Border),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Available", fontSize = 14.sp, color = SecondaryText)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Success))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Available", fontSize = 14.sp, color = MainText, fontWeight = FontWeight.Medium)
+                            }
                             Text("${d?.availableConnectors ?: 0} Guns", fontWeight = FontWeight.Bold, color = Success)
                         }
-                        Spacer(modifier = Modifier.height(10.dp))
+                        HorizontalDivider(color = Border.copy(alpha = 0.6f), thickness = 0.5.dp)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("In Use (Charging)", fontSize = 14.sp, color = SecondaryText)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Warning))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("In Use (Charging)", fontSize = 14.sp, color = MainText, fontWeight = FontWeight.Medium)
+                            }
                             Text("${d?.occupiedConnectors ?: 0} Guns", fontWeight = FontWeight.Bold, color = Warning)
                         }
-                        Spacer(modifier = Modifier.height(10.dp))
+                        HorizontalDivider(color = Border.copy(alpha = 0.6f), thickness = 0.5.dp)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Offline / Faulted", fontSize = 14.sp, color = SecondaryText)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(if ((d?.faultedConnectors ?: 0) > 0) Error else TertiaryText))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Offline / Faulted", fontSize = 14.sp, color = MainText, fontWeight = FontWeight.Medium)
+                            }
                             Text("${(d?.offlineConnectors ?: 0) + (d?.faultedConnectors ?: 0)} Guns", fontWeight = FontWeight.Bold, color = if ((d?.faultedConnectors ?: 0) > 0) Error else SecondaryText)
                         }
                     }

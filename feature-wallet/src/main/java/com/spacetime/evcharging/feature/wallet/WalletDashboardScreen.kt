@@ -1,6 +1,8 @@
 package com.spacetime.evcharging.feature.wallet
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +16,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -53,12 +57,32 @@ fun WalletDashboardScreen(
         ) {
             // Main Balance Card
             item {
-                Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Secondary),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    modifier = Modifier.fillMaxWidth()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(22.dp))
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFF0A1E33),
+                                    Color(0xFF102A43),
+                                    Color(0xFF074D3C)
+                                )
+                            )
+                        )
                 ) {
+                    Canvas(modifier = Modifier.matchParentSize()) {
+                        drawCircle(
+                            color = Color.White.copy(alpha = 0.05f),
+                            radius = size.height * 0.7f,
+                            center = Offset(size.width * 0.92f, size.height * 0.12f)
+                        )
+                        drawCircle(
+                            color = Color(0xFF0CA678).copy(alpha = 0.14f),
+                            radius = size.height * 0.45f,
+                            center = Offset(size.width * 0.85f, size.height * 0.92f)
+                        )
+                    }
                     Column(modifier = Modifier.padding(22.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -72,14 +96,14 @@ fun WalletDashboardScreen(
                             )
                             Surface(
                                 shape = RoundedCornerShape(8.dp),
-                                color = Primary
+                                color = PrimaryLight
                             ) {
                                 Text(
                                     text = "Active",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                                 )
                             }
                         }
@@ -87,8 +111,8 @@ fun WalletDashboardScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = wallet?.availableBalance?.displayAmount ?: "₹0.00",
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontSize = 34.sp,
+                            fontWeight = FontWeight.ExtraBold,
                             color = Color.White
                         )
 
@@ -102,13 +126,13 @@ fun WalletDashboardScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text("Promotional Credits", fontSize = 11.sp, color = Color.White.copy(alpha = 0.6f))
-                                Text(wallet?.promotionalBalance?.displayAmount ?: "₹0.00", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                                Text("Promotional Credits", fontSize = 11.sp, color = Color.White.copy(alpha = 0.65f))
+                                Text(wallet?.promotionalBalance?.displayAmount ?: "₹0.00", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color(0xFF6EE7B7))
                             }
                             Button(
                                 onClick = onNavigateToAddMoney,
                                 shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = Color.White)
+                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryLight, contentColor = Color.White)
                             ) {
                                 Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))

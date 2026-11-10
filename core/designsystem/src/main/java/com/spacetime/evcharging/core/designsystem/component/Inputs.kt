@@ -200,36 +200,48 @@ fun SearchBar(
     onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "Where do you want to charge?",
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
-    OutlinedTextField(
-        value = query,
-        onValueChange = onQueryChange,
-        enabled = enabled,
-        placeholder = { Text(placeholder, color = SecondaryText, fontSize = 14.sp) },
-        leadingIcon = {
-            Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = SecondaryText)
-        },
-        trailingIcon = if (query.isNotEmpty() && enabled) {
-            {
-                IconButton(onClick = { onQueryChange("") }) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Clear search", tint = SecondaryText)
-                }
-            }
-        } else null,
-        modifier = modifier.fillMaxWidth(),
+    Surface(
         shape = RoundedCornerShape(16.dp),
-        singleLine = true,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = CardBackground,
-            unfocusedContainerColor = CardBackground,
-            disabledContainerColor = CardBackground,
-            focusedBorderColor = Primary,
-            unfocusedBorderColor = Border,
-            disabledBorderColor = Border,
-            disabledTextColor = MainText,
-            disabledPlaceholderColor = SecondaryText,
-            disabledLeadingIconColor = SecondaryText
+        color = CardBackground,
+        shadowElevation = 2.dp,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = query,
+            onValueChange = onQueryChange,
+            enabled = enabled,
+            placeholder = { Text(placeholder, color = SecondaryText, fontSize = 14.sp) },
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Primary)
+            },
+            trailingIcon = when {
+                query.isNotEmpty() && enabled -> {
+                    {
+                        IconButton(onClick = { onQueryChange("") }) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = "Clear search", tint = SecondaryText)
+                        }
+                    }
+                }
+                trailingIcon != null -> trailingIcon
+                else -> null
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = CardBackground,
+                unfocusedContainerColor = CardBackground,
+                disabledContainerColor = CardBackground,
+                focusedBorderColor = Primary,
+                unfocusedBorderColor = Border,
+                disabledBorderColor = Border,
+                disabledTextColor = MainText,
+                disabledPlaceholderColor = SecondaryText,
+                disabledLeadingIconColor = Primary
+            )
         )
-    )
+    }
 }

@@ -112,10 +112,11 @@ fun ChargingStartConfirmationScreen(
             PrimaryButton(
                 text = if (uiState.isLoading) "Contacting Charger..." else "Start Charging",
                 onClick = { viewModel.startCharging(onChargingStarted) },
-                isLoading = uiState.isLoading
+                isLoading = uiState.isLoading,
+                leadingIcon = Icons.Default.ElectricBolt
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.navigationBarsPadding().height(24.dp))
         }
     }
 }

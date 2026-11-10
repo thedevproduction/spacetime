@@ -74,7 +74,7 @@ fun VehicleListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 92.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {

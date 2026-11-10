@@ -9,14 +9,15 @@ import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.view.ViewGroup
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,6 +34,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.spacetime.evcharging.core.common.model.ChargerStatus
+import com.spacetime.evcharging.core.designsystem.theme.Border
 import com.spacetime.evcharging.core.designsystem.theme.CardBackground
 import com.spacetime.evcharging.core.designsystem.theme.MainText
 import com.spacetime.evcharging.core.designsystem.theme.Primary
@@ -171,7 +173,8 @@ fun OsmRealMapView(
         stations.forEach { station ->
             val isSelected = selectedStation?.id == station.id
             val isAvailable = station.availableConnectors > 0 && station.availability == ChargerStatus.AVAILABLE
-            val badgeText = "${station.minimumTariff.displayAmount} • ${station.availableConnectors}/${station.totalConnectors}"
+            val compactPrice = station.minimumTariff.displayAmount.removeSuffix(".00")
+            val badgeText = "$compactPrice • ${station.availableConnectors}/${station.totalConnectors}"
 
             val stationMarker = Marker(mapView).apply {
                 position = GeoPoint(station.latitude, station.longitude)
@@ -204,61 +207,75 @@ fun OsmRealMapView(
             modifier = Modifier.fillMaxSize()
         )
 
-        // Zoom Controls (+/-)
-        Column(
+        // Grouped Zoom Controls (+/-) positioned cleanly below top chips
+        Surface(
+            shape = RoundedCornerShape(14.dp),
+            color = CardBackground.copy(alpha = 0.96f),
+            border = BorderStroke(1.dp, Border),
+            shadowElevation = 4.dp,
             modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .align(Alignment.TopEnd)
+                .statusBarsPadding()
+                .padding(top = 132.dp, end = 16.dp)
         ) {
-            Surface(
-                shape = CircleShape,
-                color = CardBackground,
-                shadowElevation = 4.dp,
-                modifier = Modifier
-                    .size(42.dp)
-                    .clickable { mapView.controller.zoomIn() }
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Zoom In", tint = MainText)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clickable { mapView.controller.zoomIn() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Zoom In",
+                        tint = MainText,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
-            }
-            Surface(
-                shape = CircleShape,
-                color = CardBackground,
-                shadowElevation = 4.dp,
-                modifier = Modifier
-                    .size(42.dp)
-                    .clickable { mapView.controller.zoomOut() }
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(imageVector = Icons.Default.Remove, contentDescription = "Zoom Out", tint = MainText)
+                HorizontalDivider(
+                    color = Border,
+                    thickness = 0.75.dp,
+                    modifier = Modifier.width(26.dp)
+                )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clickable { mapView.controller.zoomOut() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Remove,
+                        contentDescription = "Zoom Out",
+                        tint = MainText,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }
 
-        // OSM attribution + GPS indicator badge
+        // Clean OSM attribution badge
         Surface(
             shape = RoundedCornerShape(10.dp),
             color = CardBackground.copy(alpha = 0.92f),
+            border = BorderStroke(0.5.dp, Border),
             shadowElevation = 2.dp,
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(start = 16.dp, bottom = if (selectedStation != null) 250.dp else 28.dp)
+                .padding(start = 16.dp, bottom = if (selectedStation != null) 256.dp else 24.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Navigation,
+                    imageVector = Icons.Default.Public,
                     contentDescription = null,
                     tint = Primary,
                     modifier = Modifier.size(12.dp)
                 )
-                Spacer(modifier = Modifier.width(5.dp))
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "${String.format("%.4f", userLatitude)}°, ${String.format("%.4f", userLongitude)}° • © OpenStreetMap",
+                    text = "© OpenStreetMap",
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Medium,
                     color = SecondaryText

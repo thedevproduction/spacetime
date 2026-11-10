@@ -1,9 +1,11 @@
 package com.spacetime.evcharging.feature.customer.profile
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -57,6 +59,7 @@ fun NotificationsScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -65,7 +68,7 @@ fun NotificationsScreen(
                     FilterChip(
                         selected = isSelected,
                         onClick = { selectedTab = key },
-                        label = { Text(label, fontSize = 12.sp) },
+                        label = { Text(label, fontSize = 12.sp, maxLines = 1, softWrap = false) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = Primary.copy(alpha = 0.15f),
                             selectedLabelColor = Primary
@@ -76,7 +79,7 @@ fun NotificationsScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 32.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(filteredList) { notif ->

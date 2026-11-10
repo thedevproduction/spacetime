@@ -162,7 +162,7 @@ fun AddMoneyScreen(
                 isLoading = uiState.isProcessingPayment
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.navigationBarsPadding().height(24.dp))
         }
     }
 }
@@ -176,7 +176,7 @@ fun PaymentGatewayOption(
     onClick: () -> Unit
 ) {
     Surface(
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
         color = if (isSelected) Primary.copy(alpha = 0.08f) else CardBackground,
         border = BorderStroke(if (isSelected) 2.dp else 1.dp, if (isSelected) Primary else Border),
         modifier = Modifier
@@ -189,18 +189,30 @@ fun PaymentGatewayOption(
                 .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Surface(
+                shape = RoundedCornerShape(11.dp),
+                color = if (isSelected) Primary.copy(alpha = 0.16f) else AppBackground,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = if (isSelected) Primary else SecondaryText,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MainText)
+                Text(text = subtitle, fontSize = 12.sp, color = SecondaryText)
+            }
             RadioButton(
                 selected = isSelected,
                 onClick = onClick,
                 colors = RadioButtonDefaults.colors(selectedColor = Primary)
             )
-            Spacer(modifier = Modifier.width(10.dp))
-            Icon(imageVector = icon, contentDescription = null, tint = if (isSelected) Primary else SecondaryText, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(text = title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MainText)
-                Text(text = subtitle, fontSize = 12.sp, color = SecondaryText)
-            }
         }
     }
 }

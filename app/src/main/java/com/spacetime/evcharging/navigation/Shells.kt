@@ -1,6 +1,8 @@
 package com.spacetime.evcharging.navigation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -9,7 +11,10 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.spacetime.evcharging.core.designsystem.theme.*
 import com.spacetime.evcharging.core.navigation.*
@@ -19,49 +24,78 @@ import com.spacetime.evcharging.feature.site.dashboard.SiteAdminDashboardScreen
 import com.spacetime.evcharging.feature.station.discovery.ExploreMapScreen
 
 @Composable
+private fun NavLabel(text: String, selected: Boolean) {
+    Text(
+        text = text,
+        maxLines = 1,
+        softWrap = false,
+        overflow = TextOverflow.Ellipsis,
+        fontSize = 11.sp,
+        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium
+    )
+}
+
+@Composable
+private fun navBarItemColors() = NavigationBarItemDefaults.colors(
+    selectedIconColor = Primary,
+    selectedTextColor = Primary,
+    unselectedIconColor = SecondaryText,
+    unselectedTextColor = SecondaryText,
+    indicatorColor = Primary.copy(alpha = 0.12f)
+)
+
+@Composable
 fun CustomerShell(
     rootNavController: NavController
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            NavigationBar(containerColor = CardBackground) {
-                NavigationBarItem(
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
-                    icon = { Icon(if (selectedTab == 0) Icons.Default.Home else Icons.Outlined.Home, contentDescription = "Home") },
-                    label = { Text("Home") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
-                    icon = { Icon(if (selectedTab == 1) Icons.Default.Map else Icons.Outlined.Map, contentDescription = "Explore") },
-                    label = { Text("Explore") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2 },
-                    icon = { Icon(if (selectedTab == 2) Icons.Default.ElectricBolt else Icons.Outlined.ElectricBolt, contentDescription = "My Charging") },
-                    label = { Text("My Charging") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 3,
-                    onClick = { selectedTab = 3 },
-                    icon = { Icon(if (selectedTab == 3) Icons.Default.AccountBalanceWallet else Icons.Outlined.AccountBalanceWallet, contentDescription = "Wallet") },
-                    label = { Text("Wallet") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 4,
-                    onClick = { selectedTab = 4 },
-                    icon = { Icon(if (selectedTab == 4) Icons.Default.Person else Icons.Outlined.Person, contentDescription = "Profile") },
-                    label = { Text("Profile") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
+            Column {
+                HorizontalDivider(color = Border, thickness = 0.75.dp)
+                NavigationBar(
+                    containerColor = CardBackground,
+                    tonalElevation = 0.dp
+                ) {
+                    val itemColors = navBarItemColors()
+                    NavigationBarItem(
+                        selected = selectedTab == 0,
+                        onClick = { selectedTab = 0 },
+                        icon = { Icon(if (selectedTab == 0) Icons.Default.Home else Icons.Outlined.Home, contentDescription = "Home") },
+                        label = { NavLabel("Home", selectedTab == 0) },
+                        colors = itemColors
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 1,
+                        onClick = { selectedTab = 1 },
+                        icon = { Icon(if (selectedTab == 1) Icons.Default.Map else Icons.Outlined.Map, contentDescription = "Explore") },
+                        label = { NavLabel("Explore", selectedTab == 1) },
+                        colors = itemColors
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 2,
+                        onClick = { selectedTab = 2 },
+                        icon = { Icon(if (selectedTab == 2) Icons.Default.ElectricBolt else Icons.Outlined.ElectricBolt, contentDescription = "Charging") },
+                        label = { NavLabel("Charging", selectedTab == 2) },
+                        colors = itemColors
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 3,
+                        onClick = { selectedTab = 3 },
+                        icon = { Icon(if (selectedTab == 3) Icons.Default.AccountBalanceWallet else Icons.Outlined.AccountBalanceWallet, contentDescription = "Wallet") },
+                        label = { NavLabel("Wallet", selectedTab == 3) },
+                        colors = itemColors
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 4,
+                        onClick = { selectedTab = 4 },
+                        icon = { Icon(if (selectedTab == 4) Icons.Default.Person else Icons.Outlined.Person, contentDescription = "Profile") },
+                        label = { NavLabel("Profile", selectedTab == 4) },
+                        colors = itemColors
+                    )
+                }
             }
         }
     ) { padding ->
@@ -120,43 +154,51 @@ fun SiteAdminShell(
     var selectedTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            NavigationBar(containerColor = CardBackground) {
-                NavigationBarItem(
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
-                    icon = { Icon(Icons.Default.Dashboard, contentDescription = "Dashboard") },
-                    label = { Text("Dashboard") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
-                    icon = { Icon(Icons.Default.EvStation, contentDescription = "Stations") },
-                    label = { Text("Stations") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2 },
-                    icon = { Icon(Icons.Default.History, contentDescription = "Sessions") },
-                    label = { Text("Sessions") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 3,
-                    onClick = { selectedTab = 3 },
-                    icon = { Icon(Icons.Default.Payments, contentDescription = "Revenue") },
-                    label = { Text("Revenue") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 4,
-                    onClick = { selectedTab = 4 },
-                    icon = { Icon(Icons.Default.People, contentDescription = "Personnel") },
-                    label = { Text("Staff") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
+            Column {
+                HorizontalDivider(color = Border, thickness = 0.75.dp)
+                NavigationBar(
+                    containerColor = CardBackground,
+                    tonalElevation = 0.dp
+                ) {
+                    val itemColors = navBarItemColors()
+                    NavigationBarItem(
+                        selected = selectedTab == 0,
+                        onClick = { selectedTab = 0 },
+                        icon = { Icon(Icons.Default.Dashboard, contentDescription = "Dashboard") },
+                        label = { NavLabel("Overview", selectedTab == 0) },
+                        colors = itemColors
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 1,
+                        onClick = { selectedTab = 1 },
+                        icon = { Icon(Icons.Default.EvStation, contentDescription = "Stations") },
+                        label = { NavLabel("Stations", selectedTab == 1) },
+                        colors = itemColors
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 2,
+                        onClick = { selectedTab = 2 },
+                        icon = { Icon(Icons.Default.History, contentDescription = "Sessions") },
+                        label = { NavLabel("Sessions", selectedTab == 2) },
+                        colors = itemColors
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 3,
+                        onClick = { selectedTab = 3 },
+                        icon = { Icon(Icons.Default.Payments, contentDescription = "Revenue") },
+                        label = { NavLabel("Revenue", selectedTab == 3) },
+                        colors = itemColors
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 4,
+                        onClick = { selectedTab = 4 },
+                        icon = { Icon(Icons.Default.People, contentDescription = "Staff") },
+                        label = { NavLabel("Staff", selectedTab == 4) },
+                        colors = itemColors
+                    )
+                }
             }
         }
     ) { padding ->
@@ -181,43 +223,51 @@ fun ProviderShell(
     var selectedTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            NavigationBar(containerColor = CardBackground) {
-                NavigationBarItem(
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
-                    icon = { Icon(Icons.Default.Dashboard, contentDescription = "Dashboard") },
-                    label = { Text("Dashboard") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
-                    icon = { Icon(Icons.Default.Construction, contentDescription = "Installations") },
-                    label = { Text("Installations") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2 },
-                    icon = { Icon(Icons.Default.SupportAgent, contentDescription = "Service") },
-                    label = { Text("Service") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 3,
-                    onClick = { selectedTab = 3 },
-                    icon = { Icon(Icons.Default.Inventory2, contentDescription = "Equipment") },
-                    label = { Text("Equipment") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 4,
-                    onClick = { selectedTab = 4 },
-                    icon = { Icon(Icons.Default.People, contentDescription = "Personnel") },
-                    label = { Text("Staff") },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Primary, selectedTextColor = Primary, indicatorColor = Primary.copy(alpha = 0.12f))
-                )
+            Column {
+                HorizontalDivider(color = Border, thickness = 0.75.dp)
+                NavigationBar(
+                    containerColor = CardBackground,
+                    tonalElevation = 0.dp
+                ) {
+                    val itemColors = navBarItemColors()
+                    NavigationBarItem(
+                        selected = selectedTab == 0,
+                        onClick = { selectedTab = 0 },
+                        icon = { Icon(Icons.Default.Dashboard, contentDescription = "Dashboard") },
+                        label = { NavLabel("Overview", selectedTab == 0) },
+                        colors = itemColors
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 1,
+                        onClick = { selectedTab = 1 },
+                        icon = { Icon(Icons.Default.Construction, contentDescription = "Installations") },
+                        label = { NavLabel("Installs", selectedTab == 1) },
+                        colors = itemColors
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 2,
+                        onClick = { selectedTab = 2 },
+                        icon = { Icon(Icons.Default.SupportAgent, contentDescription = "Service") },
+                        label = { NavLabel("Service", selectedTab == 2) },
+                        colors = itemColors
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 3,
+                        onClick = { selectedTab = 3 },
+                        icon = { Icon(Icons.Default.Inventory2, contentDescription = "Equipment") },
+                        label = { NavLabel("Assets", selectedTab == 3) },
+                        colors = itemColors
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 4,
+                        onClick = { selectedTab = 4 },
+                        icon = { Icon(Icons.Default.People, contentDescription = "Staff") },
+                        label = { NavLabel("Staff", selectedTab == 4) },
+                        colors = itemColors
+                    )
+                }
             }
         }
     ) { padding ->

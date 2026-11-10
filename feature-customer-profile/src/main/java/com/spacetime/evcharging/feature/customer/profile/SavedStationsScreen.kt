@@ -32,7 +32,8 @@ fun SavedStationsScreen(
         if (uiState.savedStations.isEmpty()) {
             EmptyState(
                 title = "No Saved Stations",
-                message = "Bookmark stations on the map or station overview to quickly check gun availability."
+                message = "Bookmark stations on the map or station overview to quickly check gun availability.",
+                modifier = Modifier.padding(padding)
             )
             return@Scaffold
         }
@@ -41,7 +42,7 @@ fun SavedStationsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             items(uiState.savedStations) { station ->

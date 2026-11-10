@@ -2,6 +2,7 @@ package com.spacetime.evcharging.feature.vehicles
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -72,13 +73,15 @@ fun AddVehicleScreen(
             Text("Manufacturer", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MainText)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 popularMakers.forEach { maker ->
                     val isSelected = uiState.manufacturer == maker
                     Surface(
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(10.dp),
                         color = if (isSelected) Primary else CardBackground,
                         border = BorderStroke(1.dp, if (isSelected) Primary else Border),
                         modifier = Modifier.clickable { viewModel.onManufacturerChanged(maker) }
@@ -86,9 +89,11 @@ fun AddVehicleScreen(
                         Text(
                             text = maker,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
+                            maxLines = 1,
+                            softWrap = false,
+                            fontWeight = FontWeight.SemiBold,
                             color = if (isSelected) Color.White else MainText,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                         )
                     }
                 }
@@ -132,13 +137,15 @@ fun AddVehicleScreen(
             Text("Supported Connectors", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MainText)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 availableConnectors.forEach { conn ->
                     val isSelected = uiState.selectedConnectors.contains(conn)
                     Surface(
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(10.dp),
                         color = if (isSelected) Primary.copy(alpha = 0.15f) else CardBackground,
                         border = BorderStroke(1.5.dp, if (isSelected) Primary else Border),
                         modifier = Modifier.clickable { viewModel.toggleConnector(conn) }
@@ -146,9 +153,11 @@ fun AddVehicleScreen(
                         Text(
                             text = conn,
                             fontSize = 13.sp,
+                            maxLines = 1,
+                            softWrap = false,
                             fontWeight = FontWeight.SemiBold,
                             color = if (isSelected) Primary else MainText,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
                         )
                     }
                 }
@@ -163,7 +172,7 @@ fun AddVehicleScreen(
                 isLoading = uiState.isSaving
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.navigationBarsPadding().height(24.dp))
         }
     }
 }

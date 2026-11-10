@@ -9,8 +9,10 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -26,9 +28,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -112,6 +116,7 @@ fun ExploreMapScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         containerColor = AppBackground
     ) { padding ->
         Box(
@@ -177,32 +182,38 @@ fun ExploreMapScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .statusBarsPadding()
+                    .padding(top = 8.dp)
             ) {
+                val hasActiveFilters = uiState.filters.availableNowOnly || uiState.filters.open24Hours || uiState.filters.selectedCategory != "ALL"
+
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     SearchBar(
                         query = uiState.searchQuery,
                         onQueryChange = viewModel::onSearchQueryChanged,
                         modifier = Modifier.weight(1f),
-                        placeholder = "Search station, Jabalpur, Bhopal..."
+                        placeholder = "Search stations, hubs, or areas..."
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Surface(
-                        shape = RoundedCornerShape(14.dp),
-                        color = CardBackground,
-                        shadowElevation = 4.dp,
+                        shape = RoundedCornerShape(16.dp),
+                        color = if (hasActiveFilters) Primary.copy(alpha = 0.12f) else CardBackground,
+                        border = BorderStroke(1.dp, if (hasActiveFilters) Primary else Border),
+                        shadowElevation = 3.dp,
                         modifier = Modifier
-                            .size(52.dp)
+                            .size(54.dp)
                             .clickable { viewModel.showFilterSheet(true) }
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.Default.FilterList,
+                                imageVector = Icons.Default.Tune,
                                 contentDescription = "Filters",
-                                tint = if (uiState.filters.availableNowOnly || uiState.filters.open24Hours) Primary else MainText
+                                tint = if (hasActiveFilters) Primary else MainText
                             )
                         }
                     }
@@ -210,38 +221,48 @@ fun ExploreMapScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Quick Filter Chips row
+                // Quick Filter Chips row (edge-to-edge scrolling without clipping)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    Spacer(modifier = Modifier.width(8.dp))
                     QuickFilterChip(
                         label = "All (${uiState.filteredStations.size})",
                         isSelected = uiState.activeQuickFilter == "ALL",
                         onClick = { viewModel.setQuickFilter("ALL") }
                     )
                     QuickFilterChip(
-                        label = "⚡ Fast DC",
+                        label = "Fast DC",
+                        leadingIcon = Icons.Default.Bolt,
+                        iconTint = Color(0xFFD97706),
                         isSelected = uiState.activeQuickFilter == "FAST_DC",
                         onClick = { viewModel.setQuickFilter("FAST_DC") }
                     )
                     QuickFilterChip(
-                        label = "🟢 Available Now",
+                        label = "Available Now",
+                        leadingIcon = Icons.Default.CheckCircle,
+                        iconTint = Success,
                         isSelected = uiState.activeQuickFilter == "AVAILABLE_NOW",
                         onClick = { viewModel.setQuickFilter("AVAILABLE_NOW") }
                     )
                     QuickFilterChip(
-                        label = "🕒 24/7 Open",
+                        label = "24/7 Open",
+                        leadingIcon = Icons.Default.Schedule,
+                        iconTint = Color(0xFF2563EB),
                         isSelected = uiState.activeQuickFilter == "24_HOURS",
                         onClick = { viewModel.setQuickFilter("24_HOURS") }
                     )
                     QuickFilterChip(
-                        label = "₹ Lowest Tariff",
+                        label = "Lowest Tariff",
+                        leadingIcon = Icons.Default.CurrencyRupee,
+                        iconTint = Primary,
                         isSelected = uiState.activeQuickFilter == "CHEAP",
                         onClick = { viewModel.setQuickFilter("CHEAP") }
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                 }
 
                 // Live Search Suggestions Dropdown on Map
@@ -250,8 +271,11 @@ fun ExploreMapScreen(
                     Card(
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = CardBackground),
+                        border = BorderStroke(1.dp, Border),
                         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     ) {
                         Column(modifier = Modifier.padding(vertical = 4.dp)) {
                             if (uiState.filteredStations.isEmpty()) {
@@ -291,13 +315,15 @@ fun ExploreMapScreen(
                                                     fontSize = 14.sp,
                                                     fontWeight = FontWeight.SemiBold,
                                                     color = MainText,
-                                                    maxLines = 1
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
                                                 )
                                                 Text(
                                                     text = station.address,
                                                     fontSize = 11.sp,
                                                     color = SecondaryText,
-                                                    maxLines = 1
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
                                                 )
                                             }
                                         }
@@ -319,28 +345,29 @@ fun ExploreMapScreen(
                 }
             }
 
-            // Floating Controls: Recenter, Toggle Map Engine, Toggle View
+            // Floating Controls: Layer Switcher, Recenter, Toggle View
+            val controlsBottomPadding by animateDpAsState(
+                targetValue = if (uiState.selectedStation != null && uiState.isMapMode) 256.dp else 20.dp,
+                label = "controlsBottom"
+            )
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(
-                        bottom = if (uiState.selectedStation != null && uiState.isMapMode) 250.dp else 24.dp,
-                        end = 16.dp
-                    ),
+                    .padding(bottom = controlsBottomPadding, end = 16.dp),
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // Map Engine Switcher Button
                 if (uiState.isMapMode) {
                     Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = CardBackground,
+                        shape = RoundedCornerShape(14.dp),
+                        color = CardBackground.copy(alpha = 0.96f),
+                        border = BorderStroke(1.dp, Border),
                         shadowElevation = 4.dp,
                         modifier = Modifier.clickable { viewModel.cycleMapEngine() }
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp)
+                            modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Layers,
@@ -357,29 +384,28 @@ fun ExploreMapScreen(
                             )
                         }
                     }
-                }
 
-                // Recenter / Locate Me Button
-                FloatingActionButton(
-                    onClick = {
-                        val fine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        val coarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        if (fine || coarse) {
-                            fetchUserLocation()
-                            viewModel.triggerRecenter()
-                            Toast.makeText(context, "Centering on your location...", Toast.LENGTH_SHORT).show()
-                        } else {
-                            locationPermissionLauncher.launch(
-                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-                            )
-                        }
-                    },
-                    containerColor = CardBackground,
-                    contentColor = Primary,
-                    shape = CircleShape,
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Icon(imageVector = Icons.Default.MyLocation, contentDescription = "Current Location")
+                    FloatingActionButton(
+                        onClick = {
+                            val fine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                            val coarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                            if (fine || coarse) {
+                                fetchUserLocation()
+                                viewModel.triggerRecenter()
+                                Toast.makeText(context, "Centering on your location...", Toast.LENGTH_SHORT).show()
+                            } else {
+                                locationPermissionLauncher.launch(
+                                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                )
+                            }
+                        },
+                        containerColor = CardBackground,
+                        contentColor = Primary,
+                        shape = CircleShape,
+                        modifier = Modifier.size(46.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.MyLocation, contentDescription = "Current Location")
+                    }
                 }
 
                 // Map / List Toggle Button
@@ -438,25 +464,40 @@ fun ExploreMapScreen(
 fun QuickFilterChip(
     label: String,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    leadingIcon: ImageVector? = null,
+    iconTint: Color = Primary
 ) {
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = if (isSelected) Primary else CardBackground,
-        border = androidx.compose.foundation.BorderStroke(
+        border = BorderStroke(
             1.dp,
             if (isSelected) Primary else Border
         ),
-        shadowElevation = if (isSelected) 3.dp else 1.dp,
+        shadowElevation = if (isSelected) 3.dp else 2.dp,
         modifier = Modifier.clickable { onClick() }
     ) {
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-            color = if (isSelected) Color.White else MainText,
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 13.dp, vertical = 7.dp)
+        ) {
+            if (leadingIcon != null) {
+                Icon(
+                    imageVector = leadingIcon,
+                    contentDescription = null,
+                    tint = if (isSelected) Color.White else iconTint,
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+            }
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                color = if (isSelected) Color.White else MainText
+            )
+        }
     }
 }
 
@@ -473,9 +514,20 @@ fun SelectedStationPreviewCard(
             .padding(16.dp),
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = CardBackground),
+        border = BorderStroke(1.dp, Border),
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
     ) {
-        Column(modifier = Modifier.padding(18.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp)) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(36.dp)
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(Border)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -487,7 +539,10 @@ fun SelectedStationPreviewCard(
                             text = station.name,
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
-                            color = MainText
+                            color = MainText,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Icon(
@@ -502,9 +557,11 @@ fun SelectedStationPreviewCard(
                         text = "${station.distanceKm} km away • ${station.address}",
                         fontSize = 12.sp,
                         color = SecondaryText,
-                        maxLines = 1
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
+                Spacer(modifier = Modifier.width(8.dp))
                 IconButton(
                     onClick = onDismiss,
                     modifier = Modifier.size(28.dp)
@@ -518,27 +575,35 @@ fun SelectedStationPreviewCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .clip(CircleShape)
-                            .background(if (station.availableConnectors > 0) Success else Warning)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "${station.availableConnectors} / ${station.totalConnectors} Available",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        color = if (station.availableConnectors > 0) Success else Warning
-                    )
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = if (station.availableConnectors > 0) SuccessLight else WarningLight
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(7.dp)
+                                .clip(CircleShape)
+                                .background(if (station.availableConnectors > 0) Success else Warning)
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text(
+                            text = "${station.availableConnectors}/${station.totalConnectors} Available",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            color = if (station.availableConnectors > 0) Success else Color(0xFF92400E)
+                        )
+                    }
                 }
 
                 Text(
@@ -571,7 +636,7 @@ fun SelectedStationPreviewCard(
             }
 
             if (station.amenities.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -592,7 +657,7 @@ fun SelectedStationPreviewCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -600,7 +665,9 @@ fun SelectedStationPreviewCard(
             ) {
                 OutlinedButton(
                     onClick = onGetDirections,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(46.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Secondary)
                 ) {
@@ -615,7 +682,9 @@ fun SelectedStationPreviewCard(
 
                 Button(
                     onClick = onNavigateToDetails,
-                    modifier = Modifier.weight(1.3f),
+                    modifier = Modifier
+                        .weight(1.3f)
+                        .height(46.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Primary)
                 ) {
@@ -643,7 +712,8 @@ fun StationListScreenContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 110.dp)
+            .statusBarsPadding()
+            .padding(top = 122.dp)
     ) {
         Row(
             modifier = Modifier
@@ -681,7 +751,7 @@ fun StationListScreenContent(
         } else {
             androidx.compose.foundation.lazy.LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 92.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 items(stations.size) { index ->

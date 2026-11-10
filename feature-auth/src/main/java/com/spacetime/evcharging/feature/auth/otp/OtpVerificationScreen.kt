@@ -34,7 +34,7 @@ fun OtpVerificationScreen(
     Scaffold(
         topBar = {
             SpacetimeTopBar(
-                title = "",
+                title = "Verify Mobile",
                 showBack = true,
                 onBackClick = onBackClick
             )

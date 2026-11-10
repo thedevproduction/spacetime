@@ -11,7 +11,6 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -110,13 +109,14 @@ fun SpacetimeTheme(
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
     val spacetimeColors = if (darkTheme) DarkSpacetimeColors else LightSpacetimeColors
 
-    // Set status bar color
+    // Configure system bar icon contrast to match the active light/dark theme
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            val controller = WindowCompat.getInsetsController(window, view)
+            controller.isAppearanceLightStatusBars = !darkTheme
+            controller.isAppearanceLightNavigationBars = !darkTheme
         }
     }
 

@@ -1,5 +1,7 @@
 package com.spacetime.evcharging.feature.station.details
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,6 +32,7 @@ fun StationDetailsScreen(
     viewModel: StationDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     if (uiState.isLoading) {
         LoadingScreen(message = "Loading station specs & live guns...")
@@ -52,32 +56,42 @@ fun StationDetailsScreen(
         bottomBar = {
             Surface(
                 color = CardBackground,
-                shadowElevation = 8.dp,
+                shadowElevation = 10.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text("Starting Tariff", fontSize = 12.sp, color = SecondaryText)
-                        Text(
-                            text = "${station.minimumTariff.displayAmount} / kWh",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Primary
-                        )
-                    }
-                    Button(
-                        onClick = { onNavigateToChargerSelection(station.id) },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                        modifier = Modifier.height(48.dp)
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    HorizontalDivider(color = Border, thickness = 0.75.dp)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .navigationBarsPadding()
+                            .padding(horizontal = 20.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Select Charger", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        Column {
+                            Text("Starting Tariff", fontSize = 12.sp, color = SecondaryText)
+                            Text(
+                                text = "${station.minimumTariff.displayAmount} / kWh",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Primary
+                            )
+                        }
+                        Button(
+                            onClick = { onNavigateToChargerSelection(station.id) },
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                            modifier = Modifier.height(48.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ElectricBolt,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Select Charger", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        }
                     }
                 }
             }
@@ -138,13 +152,17 @@ fun StationDetailsScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedButton(
-                        onClick = {},
-                        shape = RoundedCornerShape(10.dp),
+                        onClick = {
+                            val uri = Uri.parse("geo:${station.latitude},${station.longitude}?q=${station.latitude},${station.longitude}(${Uri.encode(station.name)})")
+                            val mapIntent = Intent(Intent.ACTION_VIEW, uri)
+                            context.startActivity(Intent.createChooser(mapIntent, "Open in Maps"))
+                        },
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(imageVector = Icons.Default.Navigation, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Get Navigation Directions")
+                        Text("Get Navigation Directions", fontWeight = FontWeight.SemiBold)
                     }
                 }
             }

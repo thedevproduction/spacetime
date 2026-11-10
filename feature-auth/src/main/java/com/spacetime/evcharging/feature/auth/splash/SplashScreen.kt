@@ -3,8 +3,9 @@ package com.spacetime.evcharging.feature.auth.splash
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.spacetime.evcharging.core.designsystem.component.SpacetimeBrandLogo
+import com.spacetime.evcharging.core.designsystem.component.SystemBarAppearance
 import com.spacetime.evcharging.core.designsystem.theme.*
 import com.spacetime.evcharging.core.navigation.NavigationEvent
 
@@ -26,6 +29,7 @@ fun SplashScreen(
     onNavigate: (Any) -> Unit,
     viewModel: SplashViewModel = hiltViewModel()
 ) {
+    SystemBarAppearance(isDarkBackground = true)
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -63,21 +67,12 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .scale(scale)
-                    .clip(CircleShape)
-                    .background(Primary),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "SE",
-                    fontSize = 36.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.White
-                )
-            }
+            SpacetimeBrandLogo(
+                size = 104.dp,
+                cornerRadius = 28.dp,
+                showGlowBorder = true,
+                modifier = Modifier.scale(scale)
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -94,7 +89,7 @@ fun SplashScreen(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = 4.sp,
-                color = Primary,
+                color = PrimaryLight,
                 textAlign = TextAlign.Center
             )
 
@@ -103,7 +98,7 @@ fun SplashScreen(
             Text(
                 text = "Find. Charge. Drive.",
                 fontSize = 15.sp,
-                color = Color.White.copy(alpha = 0.7f),
+                color = Color.White.copy(alpha = 0.72f),
                 textAlign = TextAlign.Center
             )
         }
@@ -111,10 +106,11 @@ fun SplashScreen(
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 48.dp)
+                .navigationBarsPadding()
+                .padding(bottom = 44.dp)
         ) {
             CircularProgressIndicator(
-                color = Primary,
+                color = PrimaryLight,
                 strokeWidth = 3.dp,
                 modifier = Modifier.size(32.dp)
             )

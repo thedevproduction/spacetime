@@ -106,7 +106,7 @@ fun HelpSupportScreen(
                 enabled = description.isNotBlank()
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.navigationBarsPadding().height(24.dp))
         }
 
         // Ticket Acknowledgment Dialog

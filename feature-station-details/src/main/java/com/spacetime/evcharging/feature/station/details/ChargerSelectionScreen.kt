@@ -41,21 +41,29 @@ fun ChargerSelectionScreen(
         bottomBar = {
             Surface(
                 color = CardBackground,
-                shadowElevation = 8.dp,
+                shadowElevation = 10.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Box(modifier = Modifier.padding(16.dp)) {
-                    PrimaryButton(
-                        text = "Continue to Quote",
-                        onClick = {
-                            val c = uiState.selectedCharger
-                            val gun = uiState.selectedConnector
-                            if (c != null && gun != null) {
-                                onContinueToQuote(stationId, c.chargerId, gun.connectorId)
-                            }
-                        },
-                        enabled = uiState.selectedConnector != null && uiState.selectedConnector!!.status.isAvailableToCharge
-                    )
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    HorizontalDivider(color = Border, thickness = 0.75.dp)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .navigationBarsPadding()
+                            .padding(horizontal = 20.dp, vertical = 14.dp)
+                    ) {
+                        PrimaryButton(
+                            text = "Continue to Quote",
+                            onClick = {
+                                val c = uiState.selectedCharger
+                                val gun = uiState.selectedConnector
+                                if (c != null && gun != null) {
+                                    onContinueToQuote(stationId, c.chargerId, gun.connectorId)
+                                }
+                            },
+                            enabled = uiState.selectedConnector != null && uiState.selectedConnector!!.status.isAvailableToCharge
+                        )
+                    }
                 }
             }
         },
